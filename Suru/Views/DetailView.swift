@@ -24,6 +24,9 @@ struct DetailView: View {
                     .listRowBackground(Color.autumnOrange.opacity(0.75))
                     .listRowSeparator(.hidden)
                     .tint(.autumnGreen)
+                    .disabled(NotificationService.notificationPermission ? false : true)
+                    .opacity(NotificationService.notificationPermission ? 1.0 : 0.25)
+                NotificationService.alertText()
                 
                 DatePicker("Dueby:", selection: $item.dueDate)
                     .listRowBackground(Color.autumnOrange.opacity(0.75))

@@ -10,11 +10,24 @@ import UserNotifications
 
 actor NotificationService {
     static let center = UNUserNotificationCenter.current()
+    static var notificationPermission = false
     
     static func notificationAuthorization() {
         Task {
-            _ = try? await center.requestAuthorization(options: [.alert, .badge, .sound])
+            guard let permissionResult = try? await center.requestAuthorization(options: [.alert, .badge, .sound]) else { return }
+            notificationPermission = permissionResult
         }
+    }
+    
+    static func setDefaultAlertValue(_ defaultAlertValue: inout Bool) {
+        if !notificationPermission {
+            defaultAlertValue = false
+        }
+    }
+    
+    static func clearNotifications() {
+        center.setBadgeCount(0)
+        center.removeAllDeliveredNotifications()
     }
     
     static func createNotification(for item: SuruItem) {
@@ -22,6 +35,7 @@ actor NotificationService {
         let content = UNMutableNotificationContent()
         content.title = item.content
         content.sound = UNNotificationSound.default
+        content.badge = 1
         let dateComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: item.dueDate)
         let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
         let request = UNNotificationRequest(identifier: item.id.uuidString, content: content, trigger: trigger)
@@ -39,6 +53,23 @@ actor NotificationService {
                     NotificationService.createNotification(for: item)
                 }
             }
+        }
+    }
+}
+
+import SwiftUI
+extension NotificationService {
+    static func alertText() -> some View {
+        if !NotificationService.notificationPermission {
+            AnyView(
+                Text("Notifications are turned off")
+                    .listRowBackground(Color.autumnOrange.opacity(0.75))
+                    .fontWeight(.light)
+            )
+        } else {
+            AnyView(
+                EmptyView()
+            )
         }
     }
 }

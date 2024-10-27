@@ -13,6 +13,7 @@ struct SuruItemView: View {
     @FocusState private var textFieldIsFocused: Bool
     @State private var showSheet = false
     @Binding var item: SuruItem
+    private let date = Date()
     
     var body: some View {
         VStack {
@@ -50,8 +51,11 @@ struct SuruItemView: View {
             }
             
             HStack {
-                Text(item.dueDate.formatted(date: .numeric, time: .shortened))
-                Spacer()
+                if item.alert {
+                    Text(item.dueDate.formatted(date: .numeric, time: .shortened))
+                        .foregroundStyle(item.dueDate < date ? .autumnOrange : .black)
+                    Spacer()
+                }
             }
         }
         .tint(.black)

@@ -103,9 +103,9 @@
 			isa = PBXGroup;
 			children = (
 				290EB2DF2CC94292005CC61C /* StorageService.swift */,
+				29C9AE6E2CCD2E3600FAE547 /* NotificationService.swift */,
 				292315942CC861220073A842 /* UserData.swift */,
 				290EB2E12CC943AD005CC61C /* SuruItemVM.swift */,
-				29C9AE6E2CCD2E3600FAE547 /* NotificationService.swift */,
 			);
 			path = "ViewModels & Services";
 			sourceTree = "<group>";

@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct ListView: View {
+    @Environment(\.scenePhase) private var scenePhase
     @State private var userData = UserData()
     @State private var showSettings = false
     @State private var defaultAlertValue = UserDefaults.standard.bool(forKey: "defaultAlertValue")
@@ -80,6 +81,12 @@ struct ListView: View {
         .environment(userData)
         .onAppear {
             NotificationService.notificationAuthorization()
+            NotificationService.setDefaultAlertValue(&defaultAlertValue)
+        }
+        .onChange(of: scenePhase) {
+            if scenePhase == .active {
+                NotificationService.clearNotifications()
+            }
         }
     }
 }

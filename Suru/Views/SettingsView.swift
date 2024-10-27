@@ -16,11 +16,15 @@ struct SettingsView: View {
             Form {
                 Toggle("Alert", isOn: $defaultAlertValue)
                     .listRowBackground(Color.autumnOrange.opacity(0.75))
+                    .listRowSeparator(.hidden)
                     .tint(.autumnGreen)
                     .bold()
+                    .disabled(NotificationService.notificationPermission ? false : true)
+                    .opacity(NotificationService.notificationPermission ? 1.0 : 0.25)
                     .onChange(of: defaultAlertValue) {
                         UserDefaults.standard.set(defaultAlertValue, forKey: "defaultAlertValue")
                     }
+                NotificationService.alertText()
             }
             .scrollContentBackground(.hidden)
             .background(.pastelGray)
