@@ -30,9 +30,17 @@ struct DetailView: View {
                 
                 DatePicker("Dueby:", selection: $item.dueDate)
                     .listRowBackground(Color.autumnOrange.opacity(0.75))
+                    .listRowSeparator(.hidden)
                     .onChange(of: item.dueDate) {
                         StorageService.store(userData: userData.SuruItems)
                     }
+                Picker("Repeat", selection: $item.repeatFrequency) {
+                    ForEach(Frequency.allCases) { frequency in
+                        Text(frequency.rawValue)
+                    }
+                }
+                .listRowBackground(Color.autumnOrange.opacity(0.75))
+                .tint(.black)
             }
             .scrollContentBackground(.hidden)
             .background(.pastelGray)

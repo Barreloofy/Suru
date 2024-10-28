@@ -31,15 +31,45 @@ actor NotificationService {
     }
     
     static func createNotification(for item: SuruItem) {
-        guard item.alert else { return }
+        guard item.alert, item.dueDate > Date() else { return }
         let content = UNMutableNotificationContent()
         content.title = item.content
         content.sound = UNNotificationSound.default
         content.badge = 1
-        let dateComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: item.dueDate)
-        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
+        let dateComponents = configureDateComponents(for: item.dueDate, with: item.repeatFrequency)
+        let shouldRepeat = item.repeatFrequency == .Never ? false : true
+        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: shouldRepeat)
         let request = UNNotificationRequest(identifier: item.id.uuidString, content: content, trigger: trigger)
         center.add(request)
+    }
+    
+    static func configureDateComponents(for date: Date, with repeatValue: Frequency) -> DateComponents {
+        let calendar = Calendar.current
+        var dateComponents: DateComponents
+        switch repeatValue {
+        case .Never:
+            return calendar.dateComponents([.year, .month, .day, .hour, .minute], from: date)
+        case .Hourly:
+            dateComponents = calendar.dateComponents([.hour, .minute], from: date)
+            dateComponents.second = 0
+            return dateComponents
+        case .Daily:
+            dateComponents = calendar.dateComponents([.hour, .minute], from: date)
+            dateComponents.second = 0
+            return dateComponents
+        case .Weekly:
+            dateComponents = calendar.dateComponents([.weekday, .hour, .minute], from: date)
+            dateComponents.second = 0
+            return dateComponents
+        case .Monthly:
+            dateComponents = calendar.dateComponents([.day, .hour, .minute], from: date)
+            dateComponents.second = 0
+            return dateComponents
+        case .Yearly:
+            dateComponents = calendar.dateComponents([.month, .day, .hour, .minute], from: date)
+            dateComponents.second = 0
+            return dateComponents
+        }
     }
     
     static func completionCheck(for item: SuruItem) {
@@ -64,6 +94,7 @@ extension NotificationService {
             AnyView(
                 Text("Notifications are turned off")
                     .listRowBackground(Color.autumnOrange.opacity(0.75))
+                    .listRowSeparator(.hidden)
                     .fontWeight(.light)
             )
         } else {

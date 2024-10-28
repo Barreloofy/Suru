@@ -7,12 +7,10 @@
 
 import Foundation
 
-struct SuruItem: Identifiable, Codable {
-    let id: UUID
-    var dueDate: Date
-    var content: String
-    var completed: Bool
-    var alert: Bool
+struct SuruItem: Identifiable, Codable, Comparable {
+    static func < (lhs: SuruItem, rhs: SuruItem) -> Bool {
+        return lhs.dueDate < rhs.dueDate ? true : false
+    }
     
     init(alert: Bool = false) {
         id = UUID()
@@ -20,5 +18,24 @@ struct SuruItem: Identifiable, Codable {
         content = ""
         completed = false
         self.alert = alert
+        repeatFrequency = Frequency.Never
     }
+    
+    let id: UUID
+    var dueDate: Date
+    var content: String
+    var completed: Bool
+    var alert: Bool
+    var repeatFrequency: Frequency
+}
+
+enum Frequency: String, CaseIterable, Identifiable, Codable {
+    var id: Self { self }
+    
+    case Never
+    case Hourly
+    case Daily
+    case Weekly
+    case Monthly
+    case Yearly
 }

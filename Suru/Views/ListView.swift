@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+@preconcurrency import UserNotifications
 
 struct ListView: View {
     @Environment(\.scenePhase) private var scenePhase
@@ -37,6 +38,9 @@ struct ListView: View {
                         }
                         .listStyle(.plain)
                         .scrollContentBackground(.hidden)
+                        .onChange(of: userData.SuruItems) {
+                            userData.sortSuruItems()
+                        }
                     }
                 }
                 
@@ -53,6 +57,13 @@ struct ListView: View {
                         .bold()
                         
                         Spacer()
+                        
+                        Button("Info") {
+                            Task {
+                                let content = await UNUserNotificationCenter.current().pendingNotificationRequests()
+                                print(content)
+                            }
+                        }
                         
                         Button {
                             showSettings.toggle()

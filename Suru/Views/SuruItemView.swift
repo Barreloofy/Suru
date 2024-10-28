@@ -53,7 +53,7 @@ struct SuruItemView: View {
             HStack {
                 if item.alert {
                     Text(item.dueDate.formatted(date: .numeric, time: .shortened))
-                        .foregroundStyle(item.dueDate < date ? .autumnOrange : .black)
+                        .foregroundStyle(item.dueDate < date ? .autumnRed : .black)
                     Spacer()
                 }
             }

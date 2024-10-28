@@ -21,6 +21,10 @@ final class UserData {
         try! SuruItems = StorageService.retrieveData()
     }
     
+    func sortSuruItems() {
+        SuruItems = SuruItems.sorted(by: <)
+    }
+    
     func remove(_ indexSet: IndexSet) {
         let itemsToRemove = indexSet.compactMap { SuruItems.indices.contains($0) ? SuruItems[$0].id.uuidString : nil }
         SuruItems.remove(atOffsets: indexSet)
