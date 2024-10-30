@@ -31,9 +31,7 @@ struct DetailView: View {
                 DatePicker("Dueby:", selection: $item.dueDate)
                     .listRowBackground(Color.autumnOrange.opacity(0.75))
                     .listRowSeparator(.hidden)
-                    .onChange(of: item.dueDate) {
-                        StorageService.store(userData: userData.SuruItems)
-                    }
+                
                 Picker("Repeat", selection: $item.repeatFrequency) {
                     ForEach(Frequency.allCases) { frequency in
                         Text(frequency.rawValue)
@@ -49,6 +47,7 @@ struct DetailView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Set") {
+                        StorageService.store(userData: userData.SuruItems)
                         NotificationService.createNotification(for: item)
                         dismiss()
                     }

@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-@preconcurrency import UserNotifications
 
 struct ListView: View {
     @Environment(\.scenePhase) private var scenePhase
@@ -58,13 +57,6 @@ struct ListView: View {
                         
                         Spacer()
                         
-                        Button("Info") {
-                            Task {
-                                let content = await UNUserNotificationCenter.current().pendingNotificationRequests()
-                                print(content)
-                            }
-                        }
-                        
                         Button {
                             showSettings.toggle()
                         } label: {
@@ -96,6 +88,7 @@ struct ListView: View {
         }
         .onChange(of: scenePhase) {
             if scenePhase == .active {
+                NotificationService.scheduleRepeatingNotification(userData.SuruItems)
                 NotificationService.clearNotifications()
             }
         }

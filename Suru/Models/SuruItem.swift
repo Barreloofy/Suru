@@ -31,11 +31,5 @@ struct SuruItem: Identifiable, Codable, Comparable {
 
 enum Frequency: String, CaseIterable, Identifiable, Codable {
     var id: Self { self }
-    
-    case Never
-    case Hourly
-    case Daily
-    case Weekly
-    case Monthly
-    case Yearly
+    case Never, Hourly, Daily, Weekly, Monthly, Yearly
 }

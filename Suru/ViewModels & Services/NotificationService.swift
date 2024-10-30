@@ -30,15 +30,50 @@ actor NotificationService {
         center.removeAllDeliveredNotifications()
     }
     
+    static func completionCheck(for item: SuruItem) {
+        if item.completed {
+            center.removePendingNotificationRequests(withIdentifiers: [item.id.uuidString])
+        } else {
+            let date = Date()
+            if item.dueDate > date {
+                NotificationService.createNotification(for: item)
+            }
+        }
+    }
+    
+    static func scheduleRepeatingNotification(_ SuruItems: [SuruItem]) {
+        Task {
+            let repeatingNotifications = SuruItems.filter { $0.repeatFrequency != .Never}
+            let content = await center.deliveredNotifications()
+            for notification in content {
+                for item in repeatingNotifications {
+                    if notification.request.identifier == item.id.uuidString && item.repeatFrequency != .Never {
+                        NotificationService.createRpeatingNotification(for: item)
+                    }
+                }
+            }
+        }
+    }
+    
     static func createNotification(for item: SuruItem) {
-        guard item.alert, item.dueDate > Date() else { return }
+        guard item.alert, (item.dueDate > Date() || item.repeatFrequency != .Never) else { return }
+        let content = UNMutableNotificationContent()
+        content.title = item.content
+        content.sound = UNNotificationSound.default
+        content.badge = 1
+        let dateComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: item.dueDate)
+        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
+        let request = UNNotificationRequest(identifier: item.id.uuidString, content: content, trigger: trigger)
+        center.add(request)
+    }
+    
+    static func createRpeatingNotification(for item: SuruItem) {
         let content = UNMutableNotificationContent()
         content.title = item.content
         content.sound = UNNotificationSound.default
         content.badge = 1
         let dateComponents = configureDateComponents(for: item.dueDate, with: item.repeatFrequency)
-        let shouldRepeat = item.repeatFrequency == .Never ? false : true
-        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: shouldRepeat)
+        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
         let request = UNNotificationRequest(identifier: item.id.uuidString, content: content, trigger: trigger)
         center.add(request)
     }
@@ -47,42 +82,23 @@ actor NotificationService {
         let calendar = Calendar.current
         var dateComponents: DateComponents
         switch repeatValue {
-        case .Never:
+            case .Never:
             return calendar.dateComponents([.year, .month, .day, .hour, .minute], from: date)
-        case .Hourly:
-            dateComponents = calendar.dateComponents([.hour, .minute], from: date)
-            dateComponents.second = 0
+            case .Hourly:
+            dateComponents = calendar.dateComponents([.minute], from: date)
             return dateComponents
-        case .Daily:
+            case .Daily:
             dateComponents = calendar.dateComponents([.hour, .minute], from: date)
-            dateComponents.second = 0
             return dateComponents
-        case .Weekly:
+            case .Weekly:
             dateComponents = calendar.dateComponents([.weekday, .hour, .minute], from: date)
-            dateComponents.second = 0
             return dateComponents
-        case .Monthly:
+            case .Monthly:
             dateComponents = calendar.dateComponents([.day, .hour, .minute], from: date)
-            dateComponents.second = 0
             return dateComponents
-        case .Yearly:
+            case .Yearly:
             dateComponents = calendar.dateComponents([.month, .day, .hour, .minute], from: date)
-            dateComponents.second = 0
             return dateComponents
-        }
-    }
-    
-    static func completionCheck(for item: SuruItem) {
-        if item.completed {
-            center.removePendingNotificationRequests(withIdentifiers: [item.id.uuidString])
-        } else {
-            Task {
-                let queue = await center.pendingNotificationRequests()
-                let date = Date()
-                if !queue.contains(where: { $0.identifier == item.id.uuidString}) && item.dueDate > date {
-                    NotificationService.createNotification(for: item)
-                }
-            }
         }
     }
 }

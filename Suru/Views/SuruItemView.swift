@@ -26,7 +26,7 @@ struct SuruItemView: View {
                 }
                 .onChange(of: item.completed) {
                     NotificationService.completionCheck(for: item)
-                    
+                    viewModel.save(userData: userData.SuruItems)
                 }
                 TextField("Suru...", text: $item.content)
                     .foregroundStyle(item.completed ? .gray : .black)
