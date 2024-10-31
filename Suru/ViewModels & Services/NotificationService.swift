@@ -37,6 +37,8 @@ actor NotificationService {
             let date = Date()
             if item.dueDate > date {
                 NotificationService.createNotification(for: item)
+            } else if item.dueDate < date && item.repeatFrequency != .Never {
+                NotificationService.createRpeatingNotification(for: item)
             }
         }
     }
@@ -56,7 +58,7 @@ actor NotificationService {
     }
     
     static func createNotification(for item: SuruItem) {
-        guard item.alert, (item.dueDate > Date() || item.repeatFrequency != .Never) else { return }
+        guard item.alert, item.dueDate > Date() else { return }
         let content = UNMutableNotificationContent()
         content.title = item.content
         content.sound = UNNotificationSound.default

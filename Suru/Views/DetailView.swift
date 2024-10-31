@@ -19,26 +19,29 @@ struct DetailView: View {
                 TextField("Suru...", text: $item.content)
                     .listRowBackground(Color.autumnOrange.opacity(0.75))
                     .listRowSeparator(.hidden)
-                
-                Toggle("Alert", isOn: $item.alert)
-                    .listRowBackground(Color.autumnOrange.opacity(0.75))
-                    .listRowSeparator(.hidden)
-                    .tint(.autumnGreen)
-                    .disabled(NotificationService.notificationPermission ? false : true)
-                    .opacity(NotificationService.notificationPermission ? 1.0 : 0.25)
-                NotificationService.alertText()
-                
-                DatePicker("Dueby:", selection: $item.dueDate)
-                    .listRowBackground(Color.autumnOrange.opacity(0.75))
-                    .listRowSeparator(.hidden)
-                
-                Picker("Repeat", selection: $item.repeatFrequency) {
-                    ForEach(Frequency.allCases) { frequency in
-                        Text(frequency.rawValue)
+                    .onChange(of: item.content) {
+                        item.lengthEnforcer()
                     }
+                
+                Group {
+                    Toggle("Alert", isOn: $item.alert)
+                        .tint(.autumnGreen)
+                    
+                    DatePicker("Dueby:", selection: $item.dueDate)
+                    
+                    Picker("Repeat", selection: $item.repeatFrequency) {
+                        ForEach(Frequency.allCases) { frequency in
+                            Text(frequency.rawValue)
+                        }
+                    }
+                    .tint(.black)
                 }
                 .listRowBackground(Color.autumnOrange.opacity(0.75))
-                .tint(.black)
+                .listRowSeparator(.hidden)
+                .disabled(NotificationService.notificationPermission ? false : true)
+                .opacity(NotificationService.notificationPermission ? 1.0 : 0.25)
+                
+                NotificationService.alertText()
             }
             .scrollContentBackground(.hidden)
             .background(.pastelGray)

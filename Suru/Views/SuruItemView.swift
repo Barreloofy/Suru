@@ -32,6 +32,9 @@ struct SuruItemView: View {
                     .foregroundStyle(item.completed ? .gray : .black)
                     .focused($textFieldIsFocused)
                     .onChange(of: item.content) {
+                        if !showSheet {
+                            item.lengthEnforcer()
+                        }
                         viewModel.save(userData: userData.SuruItems)
                     }
                 

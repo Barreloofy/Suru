@@ -27,6 +27,13 @@ struct SuruItem: Identifiable, Codable, Comparable {
     var completed: Bool
     var alert: Bool
     var repeatFrequency: Frequency
+    
+    mutating func lengthEnforcer() {
+        print("Start")
+        if content.count > 256 {
+            content = String(content.prefix(256))
+        }
+    }
 }
 
 enum Frequency: String, CaseIterable, Identifiable, Codable {
