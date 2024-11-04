@@ -29,7 +29,6 @@ struct SuruItem: Identifiable, Codable, Comparable {
     var repeatFrequency: Frequency
     
     mutating func lengthEnforcer() {
-        print("Start")
         if content.count > 256 {
             content = String(content.prefix(256))
         }

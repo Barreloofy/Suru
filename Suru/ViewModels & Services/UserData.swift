@@ -23,6 +23,12 @@ final class UserData {
     
     func sortSuruItems() {
         SuruItems = SuruItems.sorted(by: <)
+        var completedItems = [SuruItem]()
+        var uncompletedItems = [SuruItem]()
+        for item in SuruItems {
+            item.completed ? completedItems.append(item) : uncompletedItems.append(item)
+        }
+        SuruItems = uncompletedItems + completedItems
     }
     
     func remove(_ indexSet: IndexSet) {
