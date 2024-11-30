@@ -12,6 +12,7 @@ struct ListView: View {
     @State private var userData = UserData()
     @State private var showSettings = false
     @State private var defaultAlertValue = UserDefaults.standard.bool(forKey: "defaultAlertValue")
+    @State private var date = Date()
     
     var body: some View {
         NavigationStack {
@@ -27,7 +28,7 @@ struct ListView: View {
                     } else {
                         List {
                             ForEach($userData.SuruItems) { $item in
-                                SuruItemView(item: $item)
+                                SuruItemView(item: $item, date: $date)
                                     .listRowBackground(Color.clear)
                                     .listRowSeparator(.hidden)
                             }
@@ -90,6 +91,7 @@ struct ListView: View {
             if scenePhase == .active {
                 NotificationService.scheduleRepeatingNotification(userData.SuruItems)
                 NotificationService.clearNotifications()
+                date = Date()
             }
         }
     }

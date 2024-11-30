@@ -16,7 +16,7 @@ final class SuruItemViewModel {
         saveTimer?.cancel()
         saveTimer = Timer.publish(every: 0.5, on: .main, in: .common)
             .autoconnect()
-            .sink { [ weak self] _ in
+            .sink { [weak self] _ in
                 StorageService.store(userData: userData)
                 self?.saveTimer = nil
             }

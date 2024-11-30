@@ -13,7 +13,7 @@ struct SuruItemView: View {
     @FocusState private var textFieldIsFocused: Bool
     @State private var showSheet = false
     @Binding var item: SuruItem
-    private let date = Date()
+    @Binding var date: Date
     
     var body: some View {
         VStack {
@@ -22,8 +22,8 @@ struct SuruItemView: View {
                     item.completed.toggle()
                 } label: {
                     Image(systemName: item.completed ? "circle.circle.fill" : "circle")
-                        .foregroundStyle(item.completed ? .gray : .black)
                 }
+                .foregroundStyle(item.completed ? .gray : .black)
                 .onChange(of: item.completed) {
                     NotificationService.completionCheck(for: item)
                     viewModel.save(userData: userData.SuruItems)
@@ -66,6 +66,6 @@ struct SuruItemView: View {
 }
 
 #Preview {
-    SuruItemView(item: .constant(SuruItem()))
+    SuruItemView(item: .constant(SuruItem()), date: .constant(Date()))
         .environment(UserData())
 }

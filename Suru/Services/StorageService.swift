@@ -15,7 +15,7 @@ struct StorageService {
     
     static func store(userData: [SuruItem]) {
         guard let data = try? JSONEncoder().encode(userData) else { return }
-        try? data.write(to: fileURL)
+        try! data.write(to: fileURL)
     }
     
     static func retrieveData() throws -> [SuruItem] {

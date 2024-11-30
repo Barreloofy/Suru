@@ -12,6 +12,13 @@ struct SuruItem: Identifiable, Codable, Comparable {
         return lhs.dueDate < rhs.dueDate ? true : false
     }
     
+    let id: UUID
+    var dueDate: Date
+    var content: String
+    var completed: Bool
+    var alert: Bool
+    var repeatFrequency: Frequency
+    
     init(alert: Bool = false) {
         id = UUID()
         dueDate = Calendar.current.date(byAdding: .day, value: 1, to: Calendar.current.startOfDay(for: Date()))!
@@ -20,13 +27,6 @@ struct SuruItem: Identifiable, Codable, Comparable {
         self.alert = alert
         repeatFrequency = Frequency.Never
     }
-    
-    let id: UUID
-    var dueDate: Date
-    var content: String
-    var completed: Bool
-    var alert: Bool
-    var repeatFrequency: Frequency
     
     mutating func lengthEnforcer() {
         if content.count > 256 {
