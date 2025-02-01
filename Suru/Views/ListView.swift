@@ -17,8 +17,7 @@ struct ListView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.pastelGray
-                    .ignoresSafeArea()
+                Color(.pastelGray).ignoresSafeArea()
                 
                 Group {
                     if userData.SuruItems.isEmpty {
