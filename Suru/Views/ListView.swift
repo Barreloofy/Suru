@@ -24,7 +24,8 @@ struct ListView: View {
                         Text("eeeeeeeto")
                             .font(.title)
                             .bold()
-                    } else {
+                    }
+                    else {
                         List {
                             ForEach($userData.SuruItems) { $item in
                                 SuruItemView(item: $item, date: $date)
@@ -48,7 +49,8 @@ struct ListView: View {
                         Button("New Suru") {
                             if defaultAlertValue {
                                 userData.SuruItems.append(SuruItem(alert: true))
-                            } else {
+                            }
+                            else {
                                 userData.SuruItems.append(SuruItem())
                             }
                         }

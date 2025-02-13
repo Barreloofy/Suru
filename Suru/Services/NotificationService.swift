@@ -33,11 +33,13 @@ actor NotificationService {
     static func completionCheck(for item: SuruItem) {
         if item.completed {
             center.removePendingNotificationRequests(withIdentifiers: [item.id.uuidString])
-        } else {
+        }
+        else {
             let date = Date()
             if item.dueDate > date {
                 NotificationService.createNotification(for: item)
-            } else if item.dueDate < date && item.repeatFrequency != .Never {
+            }
+            else if item.dueDate < date && item.repeatFrequency != .Never {
                 NotificationService.createRpeatingNotification(for: item)
             }
         }
@@ -85,40 +87,37 @@ actor NotificationService {
         var dateComponents: DateComponents
         switch repeatValue {
             case .Never:
-            return calendar.dateComponents([.year, .month, .day, .hour, .minute], from: date)
+                return calendar.dateComponents([.year, .month, .day, .hour, .minute], from: date)
             case .Hourly:
-            dateComponents = calendar.dateComponents([.minute], from: date)
-            return dateComponents
+                dateComponents = calendar.dateComponents([.minute], from: date)
+                return dateComponents
             case .Daily:
-            dateComponents = calendar.dateComponents([.hour, .minute], from: date)
-            return dateComponents
+                dateComponents = calendar.dateComponents([.hour, .minute], from: date)
+                return dateComponents
             case .Weekly:
-            dateComponents = calendar.dateComponents([.weekday, .hour, .minute], from: date)
-            return dateComponents
+                dateComponents = calendar.dateComponents([.weekday, .hour, .minute], from: date)
+                return dateComponents
             case .Monthly:
-            dateComponents = calendar.dateComponents([.day, .hour, .minute], from: date)
-            return dateComponents
+                dateComponents = calendar.dateComponents([.day, .hour, .minute], from: date)
+                return dateComponents
             case .Yearly:
-            dateComponents = calendar.dateComponents([.month, .day, .hour, .minute], from: date)
-            return dateComponents
+                dateComponents = calendar.dateComponents([.month, .day, .hour, .minute], from: date)
+                return dateComponents
         }
     }
 }
 
 import SwiftUI
 extension NotificationService {
-    static func alertText() -> some View {
+    @ViewBuilder static func alertText() -> some View {
         if !NotificationService.notificationPermission {
-            AnyView(
-                Text("Notifications are turned off")
-                    .listRowBackground(Color.autumnOrange.opacity(0.75))
-                    .listRowSeparator(.hidden)
-                    .fontWeight(.light)
-            )
-        } else {
-            AnyView(
-                EmptyView()
-            )
+            Text("Notifications are turned off")
+                .listRowBackground(Color.autumnOrange.opacity(0.75))
+                .listRowSeparator(.hidden)
+                .fontWeight(.light)
+        }
+        else {
+            EmptyView()
         }
     }
 }
