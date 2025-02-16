@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		290EB2E02CC94292005CC61C /* StorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 290EB2DF2CC94292005CC61C /* StorageService.swift */; };
-		290EB2E22CC943AD005CC61C /* SuruItemVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 290EB2E12CC943AD005CC61C /* SuruItemVM.swift */; };
 		292315892CC85D100073A842 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 292315832CC85D100073A842 /* Preview Assets.xcassets */; };
 		2923158A2CC85D100073A842 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 292315852CC85D100073A842 /* Assets.xcassets */; };
 		2923158C2CC85D100073A842 /* SuruApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 292315872CC85D100073A842 /* SuruApp.swift */; };
@@ -17,6 +16,9 @@
 		292315952CC861220073A842 /* UserData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 292315942CC861220073A842 /* UserData.swift */; };
 		292315972CC86B620073A842 /* SuruItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 292315962CC86B620073A842 /* SuruItemView.swift */; };
 		292315992CC8717E0073A842 /* DetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 292315982CC8717E0073A842 /* DetailView.swift */; };
+		295D1F522D627D4300D3B452 /* ListRowStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 295D1F512D627D4300D3B452 /* ListRowStyle.swift */; };
+		29721F072D60D8700047372E /* SuruItemsFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29721F062D60D8700047372E /* SuruItemsFile.swift */; };
+		29721F092D60E1F90047372E /* SettingsVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29721F082D60E1F90047372E /* SettingsVM.swift */; };
 		29B66B6B2CC9838500701724 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29B66B6A2CC9838500701724 /* SettingsView.swift */; };
 		29C9AE6F2CCD2E3600FAE547 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29C9AE6E2CCD2E3600FAE547 /* NotificationService.swift */; };
 		29CEB5912CD943B3006F577C /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 29CEB5902CD943B3006F577C /* .gitignore */; };
@@ -25,7 +27,6 @@
 
 /* Begin PBXFileReference section */
 		290EB2DF2CC94292005CC61C /* StorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageService.swift; sourceTree = "<group>"; };
-		290EB2E12CC943AD005CC61C /* SuruItemVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuruItemVM.swift; sourceTree = "<group>"; };
 		292315722CC85CF30073A842 /* Suru.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Suru.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		292315832CC85D100073A842 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		292315852CC85D100073A842 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -35,6 +36,9 @@
 		292315942CC861220073A842 /* UserData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserData.swift; sourceTree = "<group>"; };
 		292315962CC86B620073A842 /* SuruItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuruItemView.swift; sourceTree = "<group>"; };
 		292315982CC8717E0073A842 /* DetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailView.swift; sourceTree = "<group>"; };
+		295D1F512D627D4300D3B452 /* ListRowStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListRowStyle.swift; sourceTree = "<group>"; };
+		29721F062D60D8700047372E /* SuruItemsFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuruItemsFile.swift; sourceTree = "<group>"; };
+		29721F082D60E1F90047372E /* SettingsVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsVM.swift; sourceTree = "<group>"; };
 		29B66B6A2CC9838500701724 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		29C9AE6E2CCD2E3600FAE547 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		29CEB5902CD943B3006F577C /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
@@ -99,6 +103,7 @@
 				292315982CC8717E0073A842 /* DetailView.swift */,
 				29B66B6A2CC9838500701724 /* SettingsView.swift */,
 				29D569552D4E7B1B006E7C9B /* LaunchScreen.storyboard */,
+				295D1F512D627D4300D3B452 /* ListRowStyle.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -107,7 +112,7 @@
 			isa = PBXGroup;
 			children = (
 				292315942CC861220073A842 /* UserData.swift */,
-				290EB2E12CC943AD005CC61C /* SuruItemVM.swift */,
+				29721F082D60E1F90047372E /* SettingsVM.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -116,6 +121,7 @@
 			isa = PBXGroup;
 			children = (
 				292315922CC85EE00073A842 /* SuruItem.swift */,
+				29721F062D60D8700047372E /* SuruItemsFile.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -205,15 +211,17 @@
 			buildActionMask = 2147483647;
 			files = (
 				292315932CC85EE00073A842 /* SuruItem.swift in Sources */,
+				29721F072D60D8700047372E /* SuruItemsFile.swift in Sources */,
 				292315992CC8717E0073A842 /* DetailView.swift in Sources */,
 				292315952CC861220073A842 /* UserData.swift in Sources */,
 				29B66B6B2CC9838500701724 /* SettingsView.swift in Sources */,
 				292315972CC86B620073A842 /* SuruItemView.swift in Sources */,
-				290EB2E22CC943AD005CC61C /* SuruItemVM.swift in Sources */,
+				295D1F522D627D4300D3B452 /* ListRowStyle.swift in Sources */,
 				292315912CC85D9C0073A842 /* ListView.swift in Sources */,
 				2923158C2CC85D100073A842 /* SuruApp.swift in Sources */,
 				29C9AE6F2CCD2E3600FAE547 /* NotificationService.swift in Sources */,
 				290EB2E02CC94292005CC61C /* StorageService.swift in Sources */,
+				29721F092D60E1F90047372E /* SettingsVM.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

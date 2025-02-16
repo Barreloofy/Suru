@@ -7,34 +7,54 @@
 
 import Foundation
 import UserNotifications
+import Combine
 
 @MainActor
 @Observable
 final class UserData {
     var SuruItems = [SuruItem]()
+    private var timer: AnyCancellable?
     
     init() {
         loadUserData()
     }
     
-    private func loadUserData() {
-        try! SuruItems = StorageService.retrieveData()
+    private func debounce() {
+        timer?.cancel()
+        timer = Timer.publish(every: 0.5, on: .main, in: .common)
+            .autoconnect()
+            .sink { [weak self] _ in
+                guard let self = self else { return }
+                timer?.cancel()
+                timer = nil
+                sortSuruItems()
+                StorageService.store(SuruItems)
+            }
     }
     
-    func sortSuruItems() {
-        SuruItems = SuruItems.sorted(by: <)
-        var completedItems = [SuruItem]()
-        var uncompletedItems = [SuruItem]()
-        for item in SuruItems {
-            item.completed ? completedItems.append(item) : uncompletedItems.append(item)
+    private func loadUserData() {
+        try! SuruItems = StorageService.retrieve()
+    }
+    
+    private func sortSuruItems() {
+        var sortedSuruItems = SuruItems.sorted(by: <)
+        sortedSuruItems.sort {
+            !$0.completed && $1.completed
         }
-        SuruItems = uncompletedItems + completedItems
+        sortedSuruItems.sort {
+            !$0.content.isEmpty && $1.content.isEmpty
+        }
+        SuruItems = sortedSuruItems
+    }
+    
+    func update() {
+        debounce()
     }
     
     func remove(_ indexSet: IndexSet) {
-        let itemsToRemove = indexSet.compactMap { SuruItems.indices.contains($0) ? SuruItems[$0].id.uuidString : nil }
+        let notificationsToRemove = indexSet.compactMap { SuruItems.indices.contains($0) ? SuruItems[$0].id.uuidString : nil }
         SuruItems.remove(atOffsets: indexSet)
-        StorageService.store(userData: SuruItems)
-        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: itemsToRemove)
+        StorageService.store(SuruItems)
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: notificationsToRemove)
     }
 }

@@ -39,7 +39,7 @@ struct ListView: View {
                         .listStyle(.plain)
                         .scrollContentBackground(.hidden)
                         .onChange(of: userData.SuruItems) {
-                            userData.sortSuruItems()
+                            userData.update()
                         }
                     }
                 }

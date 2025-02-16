@@ -112,9 +112,6 @@ extension NotificationService {
     @ViewBuilder static func alertText() -> some View {
         if !NotificationService.notificationPermission {
             Text("Notifications are turned off")
-                .listRowBackground(Color.autumnOrange.opacity(0.75))
-                .listRowSeparator(.hidden)
-                .fontWeight(.light)
         }
         else {
             EmptyView()

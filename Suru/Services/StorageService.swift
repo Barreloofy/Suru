@@ -13,15 +13,18 @@ struct StorageService {
         return documentsDirectory.appendingPathComponent("SuruUserData", conformingTo: .json)
     }
     
-    static func store(userData: [SuruItem]) {
-        guard let data = try? JSONEncoder().encode(userData) else { return }
+    static func store(_ suruItems: [SuruItem]) {
+        let compactSuruItems = suruItems.compactMap { element in
+            element.content.isEmpty ? nil : element
+        }
+        guard let data = try? JSONEncoder().encode(compactSuruItems) else { return }
         try! data.write(to: fileURL)
     }
     
-    static func retrieveData() throws -> [SuruItem] {
+    static func retrieve() throws -> [SuruItem] {
         guard FileManager.default.fileExists(atPath: fileURL.path()) else { return [] }
         let data = try Data(contentsOf: fileURL)
-        let retrieveData = try JSONDecoder().decode([SuruItem].self, from: data)
-        return retrieveData
+        let decodedSuruItems = try JSONDecoder().decode([SuruItem].self, from: data)
+        return decodedSuruItems
     }
 }

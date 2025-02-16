@@ -9,18 +9,18 @@ import SwiftUI
 import UserNotifications
 
 struct DetailView: View {
-    @Environment(UserData.self) private var userData
     @Environment(\.dismiss) private var dismiss
     @Binding var item: SuruItem
+    @State private var text = ""
     
     var body: some View {
         NavigationStack {
             Form {
-                TextField("Suru...", text: $item.content)
+                TextField("Suru...", text: $text)
                     .listRowBackground(Color.autumnOrange.opacity(0.75))
                     .listRowSeparator(.hidden)
-                    .onChange(of: item.content) {
-                        item.lengthEnforcer()
+                    .onChange(of: text) {
+                        text.lengthEnforcer()
                     }
                 
                 Group {
@@ -42,6 +42,8 @@ struct DetailView: View {
                 .opacity(NotificationService.notificationPermission ? 1.0 : 0.25)
                 
                 NotificationService.alertText()
+                    .fontWeight(.light)
+                    .listRowStyle()
             }
             .scrollContentBackground(.hidden)
             .background(.pastelGray)
@@ -50,7 +52,7 @@ struct DetailView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Set") {
-                        StorageService.store(userData: userData.SuruItems)
+                        item.content = text
                         NotificationService.createNotification(for: item)
                         dismiss()
                     }
@@ -64,6 +66,9 @@ struct DetailView: View {
                         .bold()
                 }
             }
+        }
+        .onAppear {
+            text = item.content
         }
     }
 }

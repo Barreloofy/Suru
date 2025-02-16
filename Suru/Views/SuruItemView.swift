@@ -8,8 +8,6 @@
 import SwiftUI
 
 struct SuruItemView: View {
-    @State private var viewModel = SuruItemViewModel()
-    @Environment(UserData.self) private var userData
     @FocusState private var textFieldIsFocused: Bool
     @State private var showSheet = false
     @Binding var item: SuruItem
@@ -23,19 +21,17 @@ struct SuruItemView: View {
                 } label: {
                     Image(systemName: item.completed ? "circle.circle.fill" : "circle")
                 }
+                .buttonStyle(.borderless)
                 .foregroundStyle(item.completed ? .gray : .black)
                 .onChange(of: item.completed) {
                     NotificationService.completionCheck(for: item)
-                    viewModel.save(userData: userData.SuruItems)
                 }
                 TextField("Suru...", text: $item.content)
                     .foregroundStyle(item.completed ? .gray : .black)
                     .focused($textFieldIsFocused)
                     .onChange(of: item.content) {
-                        if !showSheet {
-                            item.lengthEnforcer()
-                        }
-                        viewModel.save(userData: userData.SuruItems)
+                        guard !showSheet else { return }
+                        item.content.lengthEnforcer()
                     }
                 
                 if textFieldIsFocused {

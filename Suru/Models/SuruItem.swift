@@ -9,6 +9,7 @@ import Foundation
 
 struct SuruItem: Identifiable, Codable, Comparable {
     static func < (lhs: SuruItem, rhs: SuruItem) -> Bool {
+        guard !lhs.content.isEmpty else { return false }
         return lhs.dueDate < rhs.dueDate ? true : false
     }
     
@@ -20,22 +21,24 @@ struct SuruItem: Identifiable, Codable, Comparable {
     var repeatFrequency: Frequency
     
     init(alert: Bool = false) {
-        id = UUID()
-        dueDate = Calendar.current.date(byAdding: .day, value: 1, to: Calendar.current.startOfDay(for: Date()))!
-        content = ""
-        completed = false
+        self.id = UUID()
+        self.dueDate = Calendar.current.date(byAdding: .day, value: 1, to: Calendar.current.startOfDay(for: Date()))!
+        self.content = ""
+        self.completed = false
         self.alert = alert
-        repeatFrequency = Frequency.Never
-    }
-    
-    mutating func lengthEnforcer() {
-        if content.count > 256 {
-            content = String(content.prefix(256))
-        }
+        self.repeatFrequency = Frequency.Never
     }
 }
 
 enum Frequency: String, CaseIterable, Identifiable, Codable {
     var id: Self { self }
     case Never, Hourly, Daily, Weekly, Monthly, Yearly
+}
+
+
+extension String {
+    mutating func lengthEnforcer() {
+        guard self.count > 256 else { return }
+        self = String(self.prefix(256))
+    }
 }
