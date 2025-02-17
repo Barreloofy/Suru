@@ -50,7 +50,7 @@ struct DetailView: View {
     }
     
     @ViewBuilder private var FormContent: some View {
-        TextField("Suru...", text: $text)
+        TextField("Suru...", text: $text, axis: .vertical)
             .listRowStyle()
             .onChange(of: text) {
                 text.lengthEnforcer()
