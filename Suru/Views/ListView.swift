@@ -18,82 +18,85 @@ struct ListView: View {
         NavigationStack {
             ZStack {
                 Color(.pastelGray).ignoresSafeArea()
-                
-                Group {
-                    if userData.SuruItems.isEmpty {
-                        Text("eeeeeeeto")
-                            .font(.title)
-                            .bold()
-                    }
-                    else {
-                        List {
-                            ForEach($userData.SuruItems) { $item in
-                                SuruItemView(item: $item, date: $date)
-                                    .listRowBackground(Color.clear)
-                                    .listRowSeparator(.hidden)
-                            }
-                            .onDelete { IndexSet in
-                                userData.remove(IndexSet)
-                            }
+                MainContent
+                    .toolbar {
+                        ToolbarItemGroup(placement: .bottomBar) {
+                            ToolbarContent
                         }
-                        .listStyle(.plain)
-                        .scrollContentBackground(.hidden)
-                        .onChange(of: userData.SuruItems) {
-                            userData.update()
+                        ToolbarItem(placement: .topBarLeading) {
+                            Text("Suru")
+                                .font(.title)
                         }
                     }
-                }
-                
-                .toolbar {
-                    ToolbarItemGroup(placement: .bottomBar) {
-                        Button("New Suru") {
-                            if defaultAlertValue {
-                                userData.SuruItems.append(SuruItem(alert: true))
-                            }
-                            else {
-                                userData.SuruItems.append(SuruItem())
-                            }
-                        }
-                        .tint(.autumnOrange)
-                        .bold()
-                        
-                        Spacer()
-                        
-                        Button {
-                            showSettings.toggle()
-                        } label: {
-                            Image(systemName: "gearshape.fill")
-                        }
-                        .tint(.autumnOrange)
-                        .sheet(isPresented: $showSettings) {
-                            SettingsView(defaultAlertValue: $defaultAlertValue)
-                        }
-                    }
-                    
-                    ToolbarItem(placement: .topBarLeading) {
-                        Text("Suru")
-                            .foregroundStyle(.autumnOrange)
-                            .font(.title)
-                            .bold()
-                    }
-                }
-                .toolbarBackgroundVisibility(.automatic, for: .navigationBar)
-                .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
-                .toolbarBackgroundVisibility(.visible, for: .bottomBar)
-                .toolbarBackground(.ultraThinMaterial, for: .bottomBar)
+                    .toolbarStyle()
             }
+            .bold()
+            .foregroundStyle(.autumnOrange)
         }
-        .environment(userData)
         .onAppear {
             NotificationService.notificationAuthorization()
             NotificationService.setDefaultAlertValue(&defaultAlertValue)
         }
+        .onChange(of: userData.SuruItems) {
+            userData.update()
+        }
         .onChange(of: scenePhase) {
-            if scenePhase == .active {
-                NotificationService.scheduleRepeatingNotification(userData.SuruItems)
-                NotificationService.clearNotifications()
-                date = Date()
+            guard scenePhase == .active else { return }
+            date = Date()
+            NotificationService.cleanup()
+            Task {
+                await NotificationService.badgeUpdater()
             }
+        }
+        .environment(userData)
+    }
+    
+    
+    @ViewBuilder private var MainContent: some View {
+        VStack {
+            if userData.SuruItems.isEmpty {
+                Text("eeeeeeeto")
+                    .font(.title)
+                    .bold()
+            }
+            else {
+                List {
+                    ForEach($userData.SuruItems) { $item in
+                        SuruItemView(item: $item, date: $date)
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
+                    }
+                    .onDelete { IndexSet in
+                        userData.remove(IndexSet)
+                    }
+                }
+                .listStyle(.plain)
+                .scrollContentBackground(.hidden)
+            }
+        }
+    }
+    
+    
+    @ViewBuilder private var ToolbarContent: some View {
+        Button {
+            guard defaultAlertValue else {
+                userData.SuruItems.append(SuruItem())
+                return
+            }
+            userData.SuruItems.append(SuruItem(alert: true))
+        } label: {
+            Text("New Suru")
+        }
+        
+        Spacer()
+        
+        Button {
+            showSettings.toggle()
+        } label: {
+            Image(systemName: "gearshape.fill")
+        }
+        .sheet(isPresented: $showSettings) {
+            SettingsView(defaultAlertValue: $defaultAlertValue)
         }
     }
 }

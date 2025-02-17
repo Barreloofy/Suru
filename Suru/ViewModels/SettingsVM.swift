@@ -34,7 +34,7 @@ final class SettingsViewModel {
         }
     }
     
-    func importFile(_ suruItems: inout [SuruItem],_ result: Result<URL, any Error>) {
+    func importFile(_ suruItems: inout [SuruItem], _ result: Result<URL, any Error>) {
         switch result {
             case .success(let success):
                 do {
@@ -42,7 +42,10 @@ final class SettingsViewModel {
                     let decodedSuruItems = try JSONDecoder().decode([SuruItem].self, from: data)
                     suruItems = decodedSuruItems
                     StorageService.store(suruItems)
-                } catch {}
+                } catch {
+                    logger.error("\(error)")
+                    importError.toggle()
+                }
             case .failure(let failure):
                 logger.error("\(failure)")
                 importError.toggle()

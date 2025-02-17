@@ -21,6 +21,7 @@ struct SettingsView: View {
             }
             .scrollContentBackground(.hidden)
             .background(.pastelGray)
+            .foregroundStyle(.black)
             .alert("Import failed", isPresented: $viewModel.importError) {}
             .alert("Export failed", isPresented: $viewModel.exportError) {}
             
@@ -45,14 +46,16 @@ struct SettingsView: View {
     @ViewBuilder private var AlertSetting: some View {
         Group {
             Toggle("Alert", isOn: $defaultAlertValue)
+                .bold()
+                .foregroundStyle(.black)
                 .tint(.autumnGreen)
-                .disabled(NotificationService.notificationPermission ? false : true)
                 .opacity(NotificationService.notificationPermission ? 1.0 : 0.25)
+                .disabled(NotificationService.notificationPermission ? false : true)
                 .onChange(of: defaultAlertValue) {
                     UserDefaults.standard.set(defaultAlertValue, forKey: "defaultAlertValue")
                 }
             NotificationService.alertText()
-                .fontWeight(.light)
+                .fontWeight(.regular)
         }
         .listRowStyle()
     }
@@ -88,7 +91,6 @@ struct SettingsView: View {
             }
         }
         .listRowStyle()
-        .foregroundStyle(.black)
     }
 }
 

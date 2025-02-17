@@ -14,50 +14,55 @@ struct SuruItemView: View {
     @Binding var date: Date
     
     var body: some View {
-        VStack {
+        VStack(alignment: .leading) {
             HStack {
-                Button {
-                    item.completed.toggle()
-                } label: {
-                    Image(systemName: item.completed ? "circle.circle.fill" : "circle")
-                }
-                .buttonStyle(.borderless)
-                .foregroundStyle(item.completed ? .gray : .black)
-                .onChange(of: item.completed) {
-                    NotificationService.completionCheck(for: item)
-                }
-                TextField("Suru...", text: $item.content)
-                    .foregroundStyle(item.completed ? .gray : .black)
-                    .focused($textFieldIsFocused)
-                    .onChange(of: item.content) {
-                        guard !showSheet else { return }
-                        item.content.lengthEnforcer()
-                    }
-                
-                if textFieldIsFocused {
-                    Button {
-                        showSheet.toggle()
-                    } label: {
-                        Image(systemName: "info.circle")
-                    }
-                    .buttonStyle(BorderlessButtonStyle())
-                    .tint(.black)
-                }
+                RowContent
             }
-            .bold()
-            .sheet(isPresented: $showSheet) {
-                DetailView(item: $item)
-            }
-            
-            HStack {
-                if item.alert {
-                    Text(item.dueDate.formatted(date: .numeric, time: .shortened))
-                        .foregroundStyle(item.dueDate < date ? .autumnRed : .black)
-                    Spacer()
-                }
-            }
+            Overdue(item)
         }
-        .tint(.black)
+        .foregroundStyle(item.completed ? .gray : .black)
+        .sheet(isPresented: $showSheet) {
+            DetailView(item: $item)
+        }
+    }
+    
+    
+    @ViewBuilder private var RowContent: some View {
+        Button {
+            item.completed.toggle()
+        } label: {
+            Image(systemName: item.completed ? "circle.circle.fill" : "circle")
+        }
+        .buttonStyle(.borderless)
+        .onChange(of: item.completed) {
+            NotificationService.completionCheck(for: item)
+        }
+        
+        TextField("Suru...", text: $item.content)
+            .tint(.autumnGreen)
+            .focused($textFieldIsFocused)
+            .disabled(item.completed ? true : false)
+            .onChange(of: item.content) {
+                guard !showSheet else { return }
+                item.content.lengthEnforcer()
+            }
+        
+        if textFieldIsFocused {
+            Button {
+                showSheet.toggle()
+            } label: {
+                Image(systemName: "info.circle")
+            }
+            .buttonStyle(BorderlessButtonStyle())
+        }
+    }
+    
+    
+    @ViewBuilder private func Overdue(_ item: SuruItem) -> some View {
+        if item.alert {
+            Text(item.dueDate.formatted(date: .numeric, time: .shortened))
+                .foregroundStyle(item.dueDate < date ? .autumnRed : .black)
+        }
     }
 }
 
