@@ -13,6 +13,9 @@ struct ListView: View {
     @State private var showSettings = false
     @State private var defaultAlertValue = UserDefaults.standard.bool(forKey: "defaultAlertValue")
     @State private var date = Date()
+    @FocusState private var focusedItem: UUID?
+    
+    @Environment(ViewRouter.self) private var viewRouter
     
     var body: some View {
         NavigationStack {
@@ -60,18 +63,34 @@ struct ListView: View {
                     .bold()
             }
             else {
-                List {
-                    ForEach($userData.SuruItems) { $item in
-                        SuruItemView(item: $item, date: $date)
-                            .listRowBackground(Color.clear)
-                            .listRowSeparator(.hidden)
+                ScrollViewReader { proxy in
+                    List {
+                        ForEach($userData.SuruItems) { $item in
+                            SuruItemView(item: $item, date: $date)
+                                .listRowBackground(Color.clear)
+                                .listRowSeparator(.hidden)
+                                .focused($focusedItem, equals: item.id)
+                                .id(item.id)
+                        }
+                        .onDelete { IndexSet in
+                            userData.remove(IndexSet)
+                        }
                     }
-                    .onDelete { IndexSet in
-                        userData.remove(IndexSet)
+                    .listStyle(.plain)
+                    .scrollContentBackground(.hidden)
+                    .onAppear {
+                        guard let str = viewRouter.rowID, let id = UUID(uuidString: str) else {
+                            print("Error")
+                            return
+                        }
+                        focusedItem = id
+                        proxy.scrollTo(id, anchor: .center)
+                    }
+                    .onChange(of: userData.SuruItems.count) {
+                        guard let id = focusedItem else { return }
+                        proxy.scrollTo(id)
                     }
                 }
-                .listStyle(.plain)
-                .scrollContentBackground(.hidden)
             }
         }
     }
@@ -79,11 +98,13 @@ struct ListView: View {
     
     @ViewBuilder private var ToolbarContent: some View {
         Button {
-            guard defaultAlertValue else {
-                userData.SuruItems.append(SuruItem())
-                return
+            if defaultAlertValue {
+                userData.SuruItems.append(SuruItem(alert: true))
             }
-            userData.SuruItems.append(SuruItem(alert: true))
+            else {
+                userData.SuruItems.append(SuruItem())
+            }
+            focusedItem = userData.SuruItems.last?.id
         } label: {
             Text("New Suru")
         }

@@ -91,7 +91,7 @@ actor NotificationService {
     static func createNotification(for item: SuruItem) async {
         guard item.alert, item.dueDate > Date() else { return }
         let content = UNMutableNotificationContent()
-        content.title = item.content
+        content.body = item.content
         content.sound = UNNotificationSound.default
         content.badge = await configureBadge(item.dueDate)
         let dateComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: item.dueDate)
@@ -102,7 +102,7 @@ actor NotificationService {
     
     static func createRepeatingNotification(for item: SuruItem) async {
         let content = UNMutableNotificationContent()
-        content.title = item.content
+        content.body = item.content
         content.sound = UNNotificationSound.default
         content.badge = await configureBadge(item.dueDate)
         let dateComponents = configureDateComponents(for: item.dueDate, with: item.repeatFrequency)

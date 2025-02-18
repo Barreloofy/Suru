@@ -23,6 +23,7 @@
 		29C9AE6F2CCD2E3600FAE547 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29C9AE6E2CCD2E3600FAE547 /* NotificationService.swift */; };
 		29CEB5912CD943B3006F577C /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 29CEB5902CD943B3006F577C /* .gitignore */; };
 		29D569562D4E7B1B006E7C9B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 29D569552D4E7B1B006E7C9B /* LaunchScreen.storyboard */; };
+		29FFB7AA2D65147700CF5311 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29FFB7A92D65147700CF5311 /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,6 +44,7 @@
 		29C9AE6E2CCD2E3600FAE547 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		29CEB5902CD943B3006F577C /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		29D569552D4E7B1B006E7C9B /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
+		29FFB7A92D65147700CF5311 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -84,6 +86,7 @@
 		292315882CC85D100073A842 /* Suru */ = {
 			isa = PBXGroup;
 			children = (
+				29FFB7A92D65147700CF5311 /* AppDelegate.swift */,
 				292315872CC85D100073A842 /* SuruApp.swift */,
 				2923158D2CC85D210073A842 /* Views */,
 				2923158E2CC85D2A0073A842 /* ViewModels */,
@@ -218,6 +221,7 @@
 				292315972CC86B620073A842 /* SuruItemView.swift in Sources */,
 				295D1F522D627D4300D3B452 /* ViewModifiers.swift in Sources */,
 				292315912CC85D9C0073A842 /* ListView.swift in Sources */,
+				29FFB7AA2D65147700CF5311 /* AppDelegate.swift in Sources */,
 				2923158C2CC85D100073A842 /* SuruApp.swift in Sources */,
 				29C9AE6F2CCD2E3600FAE547 /* NotificationService.swift in Sources */,
 				290EB2E02CC94292005CC61C /* StorageService.swift in Sources */,

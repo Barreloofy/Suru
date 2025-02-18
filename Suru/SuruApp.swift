@@ -9,9 +9,16 @@ import SwiftUI
 
 @main
 struct SuruApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+    @State private var viewRouter = ViewRouter()
+    
     var body: some Scene {
         WindowGroup {
             ListView()
+                .environment(viewRouter)
+                .onAppear {
+                    appDelegate.viewRouter = viewRouter
+                }
         }
     }
 }
