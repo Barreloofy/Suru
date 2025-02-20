@@ -11,14 +11,13 @@ struct SuruItemView: View {
     @FocusState private var textFieldIsFocused: Bool
     @State private var showSheet = false
     @Binding var item: SuruItem
-    @Binding var date: Date
     
     var body: some View {
         VStack(alignment: .leading) {
             HStack {
                 RowContent
             }
-            Overdue(item)
+            OverDue(item)
         }
         .foregroundStyle(item.completed ? .gray : .black)
         .sheet(isPresented: $showSheet) {
@@ -35,7 +34,7 @@ struct SuruItemView: View {
         }
         .buttonStyle(.borderless)
         .onChange(of: item.completed) {
-            NotificationService.completionCheck(for: item)
+            NotificationService.shared.completionCheck(for: item)
         }
         
         TextField("Suru...", text: $item.content)
@@ -58,15 +57,15 @@ struct SuruItemView: View {
     }
     
     
-    @ViewBuilder private func Overdue(_ item: SuruItem) -> some View {
+    @ViewBuilder private func OverDue(_ item: SuruItem) -> some View {
         if item.alert {
             Text(item.dueDate.formatted(date: .numeric, time: .shortened))
-                .foregroundStyle(item.dueDate < date ? .autumnRed : .black)
+                .foregroundStyle(item.dueDate < Date() ? .autumnRed : .black)
         }
     }
 }
 
 #Preview {
-    SuruItemView(item: .constant(SuruItem()), date: .constant(Date()))
+    SuruItemView(item: .constant(SuruItem()))
         .environment(UserData())
 }

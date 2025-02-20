@@ -11,7 +11,7 @@ struct SettingsView: View {
     @State private var viewModel = SettingsViewModel()
     @Environment(UserData.self) private var userData
     @Environment(\.dismiss) private var dismiss
-    @Binding var defaultAlertValue: Bool
+    @AppStorage("defaultAlertValue") private var defaultAlertValue = false
     
     var body: some View {
         NavigationStack {
@@ -49,12 +49,9 @@ struct SettingsView: View {
                 .bold()
                 .foregroundStyle(.black)
                 .tint(.autumnGreen)
-                .opacity(NotificationService.notificationPermission ? 1.0 : 0.25)
-                .disabled(NotificationService.notificationPermission ? false : true)
-                .onChange(of: defaultAlertValue) {
-                    UserDefaults.standard.set(defaultAlertValue, forKey: "defaultAlertValue")
-                }
-            NotificationService.alertText()
+                .opacity(NotificationService.shared.notificationPermission ? 1.0 : 0.25)
+                .disabled(NotificationService.shared.notificationPermission ? false : true)
+            NotificationService.shared.alertText()
                 .fontWeight(.regular)
         }
         .listRowStyle()
@@ -95,6 +92,6 @@ struct SettingsView: View {
 }
 
 #Preview {
-    SettingsView(defaultAlertValue: .constant(false))
+    SettingsView()
         .environment(UserData())
 }

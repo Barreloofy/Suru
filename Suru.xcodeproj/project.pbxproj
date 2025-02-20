@@ -19,6 +19,7 @@
 		295D1F522D627D4300D3B452 /* ViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 295D1F512D627D4300D3B452 /* ViewModifiers.swift */; };
 		29721F072D60D8700047372E /* SuruItemsFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29721F062D60D8700047372E /* SuruItemsFile.swift */; };
 		29721F092D60E1F90047372E /* SettingsVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29721F082D60E1F90047372E /* SettingsVM.swift */; };
+		29A4631D2D66706A00FC92D4 /* ListVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29A4631C2D66706A00FC92D4 /* ListVM.swift */; };
 		29B66B6B2CC9838500701724 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29B66B6A2CC9838500701724 /* SettingsView.swift */; };
 		29C9AE6F2CCD2E3600FAE547 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29C9AE6E2CCD2E3600FAE547 /* NotificationService.swift */; };
 		29CEB5912CD943B3006F577C /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 29CEB5902CD943B3006F577C /* .gitignore */; };
@@ -40,6 +41,7 @@
 		295D1F512D627D4300D3B452 /* ViewModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModifiers.swift; sourceTree = "<group>"; };
 		29721F062D60D8700047372E /* SuruItemsFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuruItemsFile.swift; sourceTree = "<group>"; };
 		29721F082D60E1F90047372E /* SettingsVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsVM.swift; sourceTree = "<group>"; };
+		29A4631C2D66706A00FC92D4 /* ListVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListVM.swift; sourceTree = "<group>"; };
 		29B66B6A2CC9838500701724 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		29C9AE6E2CCD2E3600FAE547 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		29CEB5902CD943B3006F577C /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
@@ -116,6 +118,7 @@
 			children = (
 				292315942CC861220073A842 /* UserData.swift */,
 				29721F082D60E1F90047372E /* SettingsVM.swift */,
+				29A4631C2D66706A00FC92D4 /* ListVM.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -221,6 +224,7 @@
 				292315972CC86B620073A842 /* SuruItemView.swift in Sources */,
 				295D1F522D627D4300D3B452 /* ViewModifiers.swift in Sources */,
 				292315912CC85D9C0073A842 /* ListView.swift in Sources */,
+				29A4631D2D66706A00FC92D4 /* ListVM.swift in Sources */,
 				29FFB7AA2D65147700CF5311 /* AppDelegate.swift in Sources */,
 				2923158C2CC85D100073A842 /* SuruApp.swift in Sources */,
 				29C9AE6F2CCD2E3600FAE547 /* NotificationService.swift in Sources */,
@@ -363,6 +367,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"Suru/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -393,6 +398,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"Suru/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

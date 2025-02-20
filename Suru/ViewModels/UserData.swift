@@ -19,6 +19,10 @@ final class UserData {
         loadUserData()
     }
     
+    private func loadUserData() {
+        try! SuruItems = StorageService.retrieve()
+    }
+    
     private func debounce() {
         timer?.cancel()
         timer = Timer.publish(every: 0.5, on: .main, in: .common)
@@ -30,10 +34,6 @@ final class UserData {
                 sortSuruItems()
                 StorageService.store(SuruItems)
             }
-    }
-    
-    private func loadUserData() {
-        try! SuruItems = StorageService.retrieve()
     }
     
     private func sortSuruItems() {
@@ -51,7 +51,14 @@ final class UserData {
         debounce()
     }
     
-    func remove(_ indexSet: IndexSet) {
+    func add() -> UUID {
+        let defaultAlertValue = UserDefaults.standard.bool(forKey: "defaultAlertValue")
+        let newSuru = SuruItem(alert: defaultAlertValue ? true : false)
+        SuruItems.append(newSuru)
+        return newSuru.id
+    }
+    
+    func remove(at indexSet: IndexSet) {
         let notificationsToRemove = indexSet.compactMap { SuruItems.indices.contains($0) ? SuruItems[$0].id.uuidString : nil }
         SuruItems.remove(atOffsets: indexSet)
         StorageService.store(SuruItems)

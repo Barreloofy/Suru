@@ -6,12 +6,9 @@
 //
 
 import UIKit
-import SwiftUI
 import UserNotifications
 
 class AppDelegate: NSObject, UIApplicationDelegate, @preconcurrency UNUserNotificationCenterDelegate {
-    var viewRouter: ViewRouter?
-    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         UNUserNotificationCenter.current().delegate = self
         return true
@@ -19,12 +16,6 @@ class AppDelegate: NSObject, UIApplicationDelegate, @preconcurrency UNUserNotifi
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
         let notificationID = response.notification.request.identifier
-        viewRouter!.rowID = notificationID
+        NotificationService.shared.tappedNotification = notificationID
     }
-}
-
-@MainActor
-@Observable
-final class ViewRouter {
-    var rowID: String?
 }

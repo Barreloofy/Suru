@@ -10,12 +10,8 @@ import SwiftUI
 struct ListView: View {
     @Environment(\.scenePhase) private var scenePhase
     @State private var userData = UserData()
-    @State private var showSettings = false
-    @State private var defaultAlertValue = UserDefaults.standard.bool(forKey: "defaultAlertValue")
-    @State private var date = Date()
+    @State private var viewModel = ListViewModel()
     @FocusState private var focusedItem: UUID?
-    
-    @Environment(ViewRouter.self) private var viewRouter
     
     var body: some View {
         NavigationStack {
@@ -23,33 +19,25 @@ struct ListView: View {
                 Color(.pastelGray).ignoresSafeArea()
                 MainContent
                     .toolbar {
-                        ToolbarItemGroup(placement: .bottomBar) {
-                            ToolbarContent
-                        }
-                        ToolbarItem(placement: .topBarLeading) {
-                            Text("Suru")
-                                .font(.title)
-                        }
+                        ToolbarItem(placement: .topBarLeading) { TitleContent() }
+                        ToolbarItemGroup(placement: .bottomBar) { ToolbarContent }
                     }
                     .toolbarStyle()
             }
             .bold()
             .foregroundStyle(.autumnOrange)
         }
-        .onAppear {
-            NotificationService.notificationAuthorization()
-            NotificationService.setDefaultAlertValue(&defaultAlertValue)
-        }
         .onChange(of: userData.SuruItems) {
             userData.update()
         }
         .onChange(of: scenePhase) {
             guard scenePhase == .active else { return }
-            date = Date()
-            NotificationService.cleanup()
-            Task {
-                await NotificationService.badgeUpdater()
-            }
+            NotificationService.shared.notificationAuthorization()
+            NotificationService.shared.cleanup()
+            NotificationService.shared.badgeUpdater()
+        }
+        .onChange(of: viewModel.showSettings) {
+            focusedItem = nil
         }
         .environment(userData)
     }
@@ -66,29 +54,25 @@ struct ListView: View {
                 ScrollViewReader { proxy in
                     List {
                         ForEach($userData.SuruItems) { $item in
-                            SuruItemView(item: $item, date: $date)
+                            SuruItemView(item: $item)
                                 .listRowBackground(Color.clear)
                                 .listRowSeparator(.hidden)
                                 .focused($focusedItem, equals: item.id)
-                                .id(item.id)
                         }
                         .onDelete { IndexSet in
-                            userData.remove(IndexSet)
+                            userData.remove(at: IndexSet)
                         }
                     }
                     .listStyle(.plain)
                     .scrollContentBackground(.hidden)
-                    .onAppear {
-                        guard let str = viewRouter.rowID, let id = UUID(uuidString: str) else {
-                            print("Error")
-                            return
-                        }
-                        focusedItem = id
-                        proxy.scrollTo(id, anchor: .center)
+                    .onChange(of: scenePhase) {
+                        guard scenePhase == .active else { return }
+                        viewModel.scrollToItem(proxy: proxy)
                     }
                     .onChange(of: userData.SuruItems.count) {
-                        guard let id = focusedItem else { return }
-                        proxy.scrollTo(id)
+                        withAnimation {
+                            viewModel.scrollToItem(proxy: proxy, userData.SuruItems, userData.SuruItems.count - 1)
+                        }
                     }
                 }
             }
@@ -98,13 +82,7 @@ struct ListView: View {
     
     @ViewBuilder private var ToolbarContent: some View {
         Button {
-            if defaultAlertValue {
-                userData.SuruItems.append(SuruItem(alert: true))
-            }
-            else {
-                userData.SuruItems.append(SuruItem())
-            }
-            focusedItem = userData.SuruItems.last?.id
+            focusedItem = userData.add()
         } label: {
             Text("New Suru")
         }
@@ -112,13 +90,18 @@ struct ListView: View {
         Spacer()
         
         Button {
-            showSettings.toggle()
+            viewModel.showSettings.toggle()
         } label: {
             Image(systemName: "gearshape.fill")
         }
-        .sheet(isPresented: $showSettings) {
-            SettingsView(defaultAlertValue: $defaultAlertValue)
+        .sheet(isPresented: $viewModel.showSettings) {
+            SettingsView()
         }
+    }
+    
+    private func TitleContent() -> some View {
+        Text("Suru")
+            .font(.title)
     }
 }
 

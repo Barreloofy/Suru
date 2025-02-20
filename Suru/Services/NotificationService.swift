@@ -6,60 +6,52 @@
 //
 
 import Foundation
-import UserNotifications
+@preconcurrency import UserNotifications
+import OSLog
 
-actor NotificationService {
-    static let center = UNUserNotificationCenter.current()
-    static var notificationPermission = false
+private let logger = Logger(subsystem: "com.NotificationService.suru", category: "Error")
+
+@MainActor
+class NotificationService {
+    static let shared = NotificationService()
+    private let center = UNUserNotificationCenter.current()
+    var notificationPermission = false
+    var tappedNotification: String?
     
     private init() {}
     
-    static func notificationAuthorization() {
+    func notificationAuthorization() {
         Task {
-            guard let permissionResult = try? await center.requestAuthorization(options: [.alert, .sound, .badge]) else { return }
-            notificationPermission = permissionResult
+            notificationPermission = (try? await center.requestAuthorization(options: [.alert, .sound, .badge])) ?? false
         }
     }
     
-    static func setDefaultAlertValue(_ defaultAlertValue: inout Bool) {
-        guard !notificationPermission else { return }
-        defaultAlertValue = false
-    }
-    
-    static func cleanup() {
+    func cleanup() {
         center.setBadgeCount(0)
         center.removeAllDeliveredNotifications()
     }
     
-    static func badgeUpdater() async {
-        let pendingNotifications = await center.pendingNotificationRequests().sorted {
-            guard let lhsTrigger = $0.trigger as? UNCalendarNotificationTrigger, let lhsTriggerDate = lhsTrigger.nextTriggerDate() else { return false }
-            guard let rhsTrigger = $1.trigger as? UNCalendarNotificationTrigger, let rhsTriggerDate = rhsTrigger.nextTriggerDate() else { return false }
-            return lhsTriggerDate < rhsTriggerDate
-        }
-        var count = 1
-        
-        pendingNotifications.forEach {
-            badgeUpdater($0, count)
-            count += 1
+    func badgeUpdater() {
+        Task.detached { [weak self] in
+            guard let self = self else { return }
+            let pendingNotifications = await center.pendingNotificationRequests().sorted {
+                guard let lhsTrigger = $0.trigger as? UNCalendarNotificationTrigger, let lhsTriggerDate = lhsTrigger.nextTriggerDate() else { return false }
+                guard let rhsTrigger = $1.trigger as? UNCalendarNotificationTrigger, let rhsTriggerDate = rhsTrigger.nextTriggerDate() else { return false }
+                return lhsTriggerDate < rhsTriggerDate
+            }
+            
+            await MainActor.run {
+                pendingNotifications.enumerated().forEach { index, request in
+                    let updatedContent = request.content.mutableCopy() as! UNMutableNotificationContent
+                    updatedContent.badge = NSNumber(value: index + 1)
+                    let updatedRequest = UNNotificationRequest(identifier: request.identifier, content: updatedContent, trigger: request.trigger)
+                    center.add(updatedRequest)
+                }
+            }
         }
     }
     
-    static private func badgeUpdater(_ request: UNNotificationRequest, _ count: Int) {
-        let id = request.identifier
-        let conten = request.content
-        let trigger = request.trigger
-        
-        let updatedContent = UNMutableNotificationContent()
-        updatedContent.title = conten.title
-        updatedContent.sound = conten.sound
-        updatedContent.badge = NSNumber(value: count)
-        
-        let updatedRequest = UNNotificationRequest(identifier: id, content: updatedContent, trigger: trigger)
-        center.add(updatedRequest)
-    }
-    
-    static func configureDateComponents(for date: Date, with repeatValue: Frequency) -> DateComponents {
+    func configureDateComponents(for date: Date, with repeatValue: Frequency) -> DateComponents {
         let calendar = Calendar.current
         switch repeatValue {
             case .Never:
@@ -77,7 +69,7 @@ actor NotificationService {
         }
     }
     
-    static func configureBadge(_ dueDate: Date) async -> NSNumber {
+    func configureBadge(_ dueDate: Date) async -> NSNumber {
         let pendingNotifications = await center.pendingNotificationRequests()
         var count = 1
         pendingNotifications.forEach { notification in
@@ -88,7 +80,7 @@ actor NotificationService {
         return NSNumber(value: count)
     }
     
-    static func createNotification(for item: SuruItem) async {
+    func createNotification(for item: SuruItem) async {
         guard item.alert, item.dueDate > Date() else { return }
         let content = UNMutableNotificationContent()
         content.body = item.content
@@ -97,10 +89,14 @@ actor NotificationService {
         let dateComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: item.dueDate)
         let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
         let request = UNNotificationRequest(identifier: item.id.uuidString, content: content, trigger: trigger)
-        try? await center.add(request)
+        do {
+            try await center.add(request)
+        } catch {
+            logger.error("\(error)")
+        }
     }
     
-    static func createRepeatingNotification(for item: SuruItem) async {
+    func createRepeatingNotification(for item: SuruItem) async {
         let content = UNMutableNotificationContent()
         content.body = item.content
         content.sound = UNNotificationSound.default
@@ -108,10 +104,14 @@ actor NotificationService {
         let dateComponents = configureDateComponents(for: item.dueDate, with: item.repeatFrequency)
         let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
         let request = UNNotificationRequest(identifier: item.id.uuidString, content: content, trigger: trigger)
-        try? await center.add(request)
+        do {
+            try await center.add(request)
+        } catch {
+            logger.error("\(error)")
+        }
     }
     
-    static func completionCheck(for item: SuruItem) {
+    func completionCheck(for item: SuruItem) {
         guard !item.completed else {
             center.removePendingNotificationRequests(withIdentifiers: [item.id.uuidString])
             return
@@ -134,8 +134,8 @@ actor NotificationService {
 
 import SwiftUI
 extension NotificationService {
-    @ViewBuilder static func alertText() -> some View {
-        if !NotificationService.notificationPermission {
+    @ViewBuilder func alertText() -> some View {
+        if !notificationPermission {
             Text("Notifications are turned off")
         }
     }

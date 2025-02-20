@@ -28,10 +28,10 @@ struct DetailView: View {
                         item.content = text
                         Task {
                             if item.repeatFrequency != .Never {
-                                await NotificationService.createRepeatingNotification(for: item)
+                                await NotificationService.shared.createRepeatingNotification(for: item)
                             }
                             else {
-                                await NotificationService.createNotification(for: item)
+                                await NotificationService.shared.createNotification(for: item)
                             }
                             dismiss()
                         }
@@ -70,10 +70,10 @@ struct DetailView: View {
             .tint(.black)
         }
         .listRowStyle()
-        .disabled(NotificationService.notificationPermission ? false : true)
-        .opacity(NotificationService.notificationPermission ? 1.0 : 0.25)
+        .disabled(NotificationService.shared.notificationPermission ? false : true)
+        .opacity(NotificationService.shared.notificationPermission ? 1.0 : 0.25)
         
-        NotificationService.alertText()
+        NotificationService.shared.alertText()
             .listRowStyle()
             .fontWeight(.regular)
     }
