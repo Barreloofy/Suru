@@ -7,7 +7,23 @@
 
 import SwiftUI
 
-struct ListRowStyle: ViewModifier {
+struct ListBackgroundStyle: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .scrollContentBackground(.hidden)
+            .background(Color(.pastelGray))
+    }
+}
+
+
+extension View {
+    func listBackgroundStyle() -> some View {
+        return self.modifier(ListBackgroundStyle())
+    }
+}
+
+
+struct RowStyle: ViewModifier {
     func body(content: Content) -> some View {
         content
             .listRowBackground(Color.autumnOrange.opacity(0.75))
@@ -17,8 +33,8 @@ struct ListRowStyle: ViewModifier {
 
 
 extension View {
-    func listRowStyle() -> some View {
-        return self.modifier(ListRowStyle())
+    func rowStyle() -> some View {
+        return self.modifier(RowStyle())
     }
 }
 

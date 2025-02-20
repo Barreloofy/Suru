@@ -27,17 +27,11 @@ struct ListView: View {
             .bold()
             .foregroundStyle(.autumnOrange)
         }
-        .onChange(of: userData.SuruItems) {
-            userData.update()
-        }
         .onChange(of: scenePhase) {
             guard scenePhase == .active else { return }
             NotificationService.shared.notificationAuthorization()
             NotificationService.shared.cleanup()
             NotificationService.shared.badgeUpdater()
-        }
-        .onChange(of: viewModel.showSettings) {
-            focusedItem = nil
         }
         .environment(userData)
     }
@@ -69,6 +63,9 @@ struct ListView: View {
                         guard scenePhase == .active else { return }
                         viewModel.scrollToItem(proxy: proxy)
                     }
+                    .onChange(of: userData.SuruItems) {
+                        userData.update()
+                    }
                     .onChange(of: userData.SuruItems.count) {
                         withAnimation {
                             viewModel.scrollToItem(proxy: proxy, userData.SuruItems, userData.SuruItems.count - 1)
@@ -91,6 +88,7 @@ struct ListView: View {
         
         Button {
             viewModel.showSettings.toggle()
+            focusedItem = nil
         } label: {
             Image(systemName: "gearshape.fill")
         }

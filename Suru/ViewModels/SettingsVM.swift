@@ -7,6 +7,7 @@
 
 import Foundation
 import OSLog
+import UserNotifications
 
 private let logger = Logger(subsystem: "com.settings.suru", category: "Error")
 
@@ -41,7 +42,8 @@ final class SettingsViewModel {
                     let data = try Data(contentsOf: success)
                     let decodedSuruItems = try JSONDecoder().decode([SuruItem].self, from: data)
                     suruItems = decodedSuruItems
-                    StorageService.store(suruItems)
+                    StorageService.store(suruItems, StorageService.userDataFileURL)
+                    UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
                 } catch {
                     logger.error("\(error)")
                     importError.toggle()

@@ -107,8 +107,8 @@
 				292315962CC86B620073A842 /* SuruItemView.swift */,
 				292315982CC8717E0073A842 /* DetailView.swift */,
 				29B66B6A2CC9838500701724 /* SettingsView.swift */,
-				29D569552D4E7B1B006E7C9B /* LaunchScreen.storyboard */,
 				295D1F512D627D4300D3B452 /* ViewModifiers.swift */,
+				29D569552D4E7B1B006E7C9B /* LaunchScreen.storyboard */,
 			);
 			path = Views;
 			sourceTree = "<group>";

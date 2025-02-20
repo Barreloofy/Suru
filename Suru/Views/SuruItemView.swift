@@ -8,16 +8,16 @@
 import SwiftUI
 
 struct SuruItemView: View {
-    @FocusState private var textFieldIsFocused: Bool
     @State private var showSheet = false
     @Binding var item: SuruItem
+    @FocusState private var textFieldIsFocused: Bool
     
     var body: some View {
         VStack(alignment: .leading) {
             HStack {
                 RowContent
             }
-            OverDue(item)
+            AlertStatusDate()
         }
         .foregroundStyle(item.completed ? .gray : .black)
         .sheet(isPresented: $showSheet) {
@@ -34,7 +34,9 @@ struct SuruItemView: View {
         }
         .buttonStyle(.borderless)
         .onChange(of: item.completed) {
-            NotificationService.shared.completionCheck(for: item)
+            if item.repeatFrequency == .Never {
+                NotificationService.shared.completionCheck(for: item)
+            }
         }
         
         TextField("Suru...", text: $item.content)
@@ -49,19 +51,28 @@ struct SuruItemView: View {
         if textFieldIsFocused {
             Button {
                 showSheet.toggle()
+                textFieldIsFocused = false
             } label: {
                 Image(systemName: "info.circle")
             }
-            .buttonStyle(BorderlessButtonStyle())
         }
     }
     
     
-    @ViewBuilder private func OverDue(_ item: SuruItem) -> some View {
-        if item.alert {
-            Text(item.dueDate.formatted(date: .numeric, time: .shortened))
-                .foregroundStyle(item.dueDate < Date() ? .autumnRed : .black)
+    @ViewBuilder private func AlertStatusDate() -> some View {
+        HStack {
+            if item.alert {
+                let formattedDate = item.dueDate.formatted(date: .numeric, time: .shortened)
+                switch item.repeatFrequency {
+                    case .Never:
+                        Text(formattedDate)
+                    default:
+                        Text(formattedDate)
+                        Image(systemName: "repeat")
+                }
+            }
         }
+        .foregroundStyle(item.dueDate < Date() ? .autumnRed : .black)
     }
 }
 

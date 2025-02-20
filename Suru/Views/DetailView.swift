@@ -10,25 +10,34 @@ import SwiftUI
 struct DetailView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var text = ""
+    @State private var alert = UserDefaults.standard.bool(forKey: "defaultAlertValue")
     @Binding var item: SuruItem
-    @FocusState private var isFocused: Bool
     
     var body: some View {
         NavigationStack {
             Form {
                 FormContent
             }
-            .scrollContentBackground(.hidden)
-            .background(.pastelGray)
+            .listBackgroundStyle()
             .foregroundStyle(.black)
             .tint(.autumnGreen)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
+#warning("Refactor needed")
                     Button("Set") {
                         item.content = text
+                        item.alert = alert
+                        guard item.alert else {
+                            dismiss()
+                            let center = UNUserNotificationCenter.current()
+                            center.removePendingNotificationRequests(withIdentifiers: [item.id.uuidString])
+                            return
+                        }
                         Task {
                             if item.repeatFrequency != .Never {
-                                await NotificationService.shared.createRepeatingNotification(for: item)
+                                //await NotificationService.shared.createRepeatingNotification(for: item)
+                                await NotificationService.shared.createNotification(for: item)
+                                NotificationService.shared.firstTimeRepeatingNotifications.append(item)
                             }
                             else {
                                 await NotificationService.shared.createNotification(for: item)
@@ -51,13 +60,13 @@ struct DetailView: View {
     
     @ViewBuilder private var FormContent: some View {
         TextField("Suru...", text: $text, axis: .vertical)
-            .listRowStyle()
+            .rowStyle()
             .onChange(of: text) {
                 text.lengthEnforcer()
             }
         
         Group {
-            Toggle("Alert", isOn: $item.alert)
+            Toggle("Alert", isOn: $alert)
             
             DatePicker("Dueby:", selection: $item.dueDate)
                 .tint(.black)
@@ -69,12 +78,12 @@ struct DetailView: View {
             }
             .tint(.black)
         }
-        .listRowStyle()
+        .rowStyle()
         .disabled(NotificationService.shared.notificationPermission ? false : true)
         .opacity(NotificationService.shared.notificationPermission ? 1.0 : 0.25)
         
         NotificationService.shared.alertText()
-            .listRowStyle()
+            .rowStyle()
             .fontWeight(.regular)
     }
 }

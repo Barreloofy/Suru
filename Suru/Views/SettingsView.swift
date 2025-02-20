@@ -19,25 +19,23 @@ struct SettingsView: View {
                 AlertSetting
                 UserDataSettings
             }
-            .scrollContentBackground(.hidden)
-            .background(.pastelGray)
+            .listBackgroundStyle()
             .foregroundStyle(.black)
             .alert("Import failed", isPresented: $viewModel.importError) {}
             .alert("Export failed", isPresented: $viewModel.exportError) {}
             
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") {
+                    Button {
                         dismiss()
+                    } label: {
+                        Text("Done")
                     }
-                    .tint(.autumnOrange)
-                    .bold()
                 }
                 
                 ToolbarItem(placement: .principal) {
                     Text("Settings")
                         .font(.title)
-                        .bold()
                 }
             }
         }
@@ -46,15 +44,13 @@ struct SettingsView: View {
     @ViewBuilder private var AlertSetting: some View {
         Group {
             Toggle("Alert", isOn: $defaultAlertValue)
-                .bold()
-                .foregroundStyle(.black)
                 .tint(.autumnGreen)
                 .opacity(NotificationService.shared.notificationPermission ? 1.0 : 0.25)
                 .disabled(NotificationService.shared.notificationPermission ? false : true)
             NotificationService.shared.alertText()
                 .fontWeight(.regular)
         }
-        .listRowStyle()
+        .rowStyle()
     }
     
     @ViewBuilder private var UserDataSettings: some View {
@@ -64,7 +60,6 @@ struct SettingsView: View {
             } label: {
                 Text("Import")
             }
-            .buttonStyle(.plain)
             .fileImporter(
                 isPresented: $viewModel.showImporter,
                 allowedContentTypes: [.json]
@@ -77,7 +72,6 @@ struct SettingsView: View {
             } label: {
                 Text("Export")
             }
-            .buttonStyle(.plain)
             .fileExporter(
                 isPresented: $viewModel.showExporter,
                 document: viewModel.file,
@@ -87,7 +81,8 @@ struct SettingsView: View {
                 viewModel.exportHandler(result)
             }
         }
-        .listRowStyle()
+        .rowStyle()
+        .buttonStyle(.plain)
     }
 }
 

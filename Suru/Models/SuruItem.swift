@@ -20,12 +20,12 @@ struct SuruItem: Identifiable, Codable, Comparable {
     var alert: Bool
     var repeatFrequency: Frequency
     
-    init(alert: Bool = false) {
+    init() {
         self.id = UUID()
         self.dueDate = Calendar.current.date(byAdding: .day, value: 1, to: Calendar.current.startOfDay(for: Date()))!
         self.content = ""
         self.completed = false
-        self.alert = alert
+        self.alert = false
         self.repeatFrequency = Frequency.Never
     }
 }

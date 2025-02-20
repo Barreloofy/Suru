@@ -17,8 +17,16 @@ class NotificationService {
     private let center = UNUserNotificationCenter.current()
     var notificationPermission = false
     var tappedNotification: String?
+    var firstTimeRepeatingNotifications = [SuruItem]() {
+        didSet {
+            StorageService.store(firstTimeRepeatingNotifications, StorageService.repeatNotificationFileURL)
+        }
+    }
+#warning("Not persistent")
     
-    private init() {}
+    private init() {
+        firstTimeRepeatingNotifications = try! StorageService.retrieve(StorageService.repeatNotificationFileURL)
+    }
     
     func notificationAuthorization() {
         Task {
@@ -32,7 +40,7 @@ class NotificationService {
     }
     
     func badgeUpdater() {
-        Task.detached { [weak self] in
+        Task.detached(priority: .high) { [weak self] in
             guard let self = self else { return }
             let pendingNotifications = await center.pendingNotificationRequests().sorted {
                 guard let lhsTrigger = $0.trigger as? UNCalendarNotificationTrigger, let lhsTriggerDate = lhsTrigger.nextTriggerDate() else { return false }
@@ -86,7 +94,8 @@ class NotificationService {
         content.body = item.content
         content.sound = UNNotificationSound.default
         content.badge = await configureBadge(item.dueDate)
-        let dateComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: item.dueDate)
+        //let dateComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: item.dueDate)
+        let dateComponents = configureDateComponents(for: item.dueDate, with: .Never)
         let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
         let request = UNNotificationRequest(identifier: item.id.uuidString, content: content, trigger: trigger)
         do {
@@ -96,7 +105,9 @@ class NotificationService {
         }
     }
     
+#warning("Ignores all but the repeatFrequency date component")
     func createRepeatingNotification(for item: SuruItem) async {
+        guard item.alert else { return }
         let content = UNMutableNotificationContent()
         content.body = item.content
         content.sound = UNNotificationSound.default
@@ -111,23 +122,45 @@ class NotificationService {
         }
     }
     
+#warning("in progress")
     func completionCheck(for item: SuruItem) {
-        guard !item.completed else {
+        guard !item.completed && item.alert else {
             center.removePendingNotificationRequests(withIdentifiers: [item.id.uuidString])
             return
         }
         
         let date = Date()
         
-        if item.dueDate > date {
-            Task {
-                await createNotification(for: item)
-            }
-        }
-        else if item.dueDate < date && item.repeatFrequency != .Never {
-            Task {
-                await createRepeatingNotification(for: item)
-            }
+        switch item.repeatFrequency {
+            case .Never:
+                guard item.dueDate > date else { return }
+                Task {
+                    await createNotification(for: item)
+                }
+            default:
+                let newDate: Date?
+                let calendar = Calendar.current
+                let oldDate = item.dueDate
+                switch item.repeatFrequency {
+                    case .Never:
+                        fatalError("Error")
+                    case .Hourly:
+                        newDate = calendar.date(byAdding: .hour, value: 1, to: oldDate)
+                    case .Daily:
+                        newDate = calendar.date(byAdding: .day, value: 1, to: oldDate)
+                    case .Weekly:
+                        newDate = calendar.date(byAdding: .day, value: 7, to: oldDate)
+                    case .Monthly:
+                        newDate = calendar.date(byAdding: .month, value: 1, to: oldDate)
+                    case .Yearly:
+                        newDate = calendar.date(byAdding: .year, value: 1, to: oldDate)
+                }
+                guard let newDate = newDate else { fatalError("Error, again") }
+                var newItem = item
+                newItem.dueDate = newDate
+                Task {
+                    await createRepeatingNotification(for: newItem)
+                }
         }
     }
 }

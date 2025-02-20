@@ -20,7 +20,7 @@ final class UserData {
     }
     
     private func loadUserData() {
-        try! SuruItems = StorageService.retrieve()
+        try! SuruItems = StorageService.retrieve(StorageService.userDataFileURL)
     }
     
     private func debounce() {
@@ -32,7 +32,7 @@ final class UserData {
                 timer?.cancel()
                 timer = nil
                 sortSuruItems()
-                StorageService.store(SuruItems)
+                StorageService.store(SuruItems, StorageService.userDataFileURL)
             }
     }
     
@@ -52,8 +52,7 @@ final class UserData {
     }
     
     func add() -> UUID {
-        let defaultAlertValue = UserDefaults.standard.bool(forKey: "defaultAlertValue")
-        let newSuru = SuruItem(alert: defaultAlertValue ? true : false)
+        let newSuru = SuruItem()
         SuruItems.append(newSuru)
         return newSuru.id
     }
@@ -61,7 +60,7 @@ final class UserData {
     func remove(at indexSet: IndexSet) {
         let notificationsToRemove = indexSet.compactMap { SuruItems.indices.contains($0) ? SuruItems[$0].id.uuidString : nil }
         SuruItems.remove(atOffsets: indexSet)
-        StorageService.store(SuruItems)
+        StorageService.store(SuruItems, StorageService.userDataFileURL)
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: notificationsToRemove)
     }
 }
