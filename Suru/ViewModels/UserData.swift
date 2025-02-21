@@ -20,7 +20,7 @@ final class UserData {
     }
     
     private func loadUserData() {
-        try! SuruItems = StorageService.retrieve(StorageService.userDataFileURL)
+        try! SuruItems = StorageService.retrieve()
     }
     
     private func debounce() {
@@ -32,7 +32,7 @@ final class UserData {
                 timer?.cancel()
                 timer = nil
                 sortSuruItems()
-                StorageService.store(SuruItems, StorageService.userDataFileURL)
+                StorageService.store(SuruItems)
             }
     }
     
@@ -58,9 +58,15 @@ final class UserData {
     }
     
     func remove(at indexSet: IndexSet) {
-        let notificationsToRemove = indexSet.compactMap { SuruItems.indices.contains($0) ? SuruItems[$0].id.uuidString : nil }
+        var notificationsToRemove = indexSet.compactMap {
+            SuruItems.indices.contains($0) ? SuruItems[$0].id.uuidString : nil
+        }
+        notificationsToRemove.forEach {
+            let idWithSuffix = $0 + "_repeating"
+            notificationsToRemove.append(idWithSuffix)
+        }
         SuruItems.remove(atOffsets: indexSet)
-        StorageService.store(SuruItems, StorageService.userDataFileURL)
+        StorageService.store(SuruItems)
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: notificationsToRemove)
     }
 }

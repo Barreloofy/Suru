@@ -6,9 +6,10 @@
 //
 
 import SwiftUI
+import Combine
 
 struct SuruItemView: View {
-    @State private var showSheet = false
+    @State private var viewModel = ItemViewModel()
     @Binding var item: SuruItem
     @FocusState private var textFieldIsFocused: Bool
     
@@ -20,7 +21,7 @@ struct SuruItemView: View {
             AlertStatusDate()
         }
         .foregroundStyle(item.completed ? .gray : .black)
-        .sheet(isPresented: $showSheet) {
+        .sheet(isPresented: $viewModel.showSheet) {
             DetailView(item: $item)
         }
     }
@@ -34,9 +35,7 @@ struct SuruItemView: View {
         }
         .buttonStyle(.borderless)
         .onChange(of: item.completed) {
-            if item.repeatFrequency == .Never {
-                NotificationService.shared.completionCheck(for: item)
-            }
+            viewModel.completionHandler(item)
         }
         
         TextField("Suru...", text: $item.content)
@@ -44,13 +43,12 @@ struct SuruItemView: View {
             .focused($textFieldIsFocused)
             .disabled(item.completed ? true : false)
             .onChange(of: item.content) {
-                guard !showSheet else { return }
-                item.content.lengthEnforcer()
+                viewModel.updateItem($item)
             }
         
         if textFieldIsFocused {
             Button {
-                showSheet.toggle()
+                viewModel.showSheet.toggle()
                 textFieldIsFocused = false
             } label: {
                 Image(systemName: "info.circle")

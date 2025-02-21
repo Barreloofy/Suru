@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct SuruItem: Identifiable, Codable, Comparable {
+struct SuruItem: Identifiable, Hashable, Comparable, Codable {
     static func < (lhs: SuruItem, rhs: SuruItem) -> Bool {
         guard !lhs.content.isEmpty else { return false }
         return lhs.dueDate < rhs.dueDate ? true : false
@@ -31,8 +31,29 @@ struct SuruItem: Identifiable, Codable, Comparable {
 }
 
 enum Frequency: String, CaseIterable, Identifiable, Codable {
-    var id: Self { self }
     case Never, Hourly, Daily, Weekly, Monthly, Yearly
+    var id: Self { self }
+    
+    private enum FrequencyError: String, Error {
+        case noAssociatedComponent = "Value 'Never' dosen't correspond to any Component"
+    }
+    
+    func toComponent() throws -> Calendar.Component {
+        switch self {
+            case .Never:
+                throw FrequencyError.noAssociatedComponent
+            case .Hourly:
+                return .hour
+            case .Daily:
+                return .day
+            case .Weekly:
+                return .weekOfYear
+            case .Monthly:
+                return .month
+            case .Yearly:
+                return .year
+        }
+    }
 }
 
 

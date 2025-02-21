@@ -23,7 +23,6 @@ struct DetailView: View {
             .tint(.autumnGreen)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-#warning("Refactor needed")
                     Button("Set") {
                         item.content = text
                         item.alert = alert
@@ -34,15 +33,8 @@ struct DetailView: View {
                             return
                         }
                         Task {
-                            if item.repeatFrequency != .Never {
-                                //await NotificationService.shared.createRepeatingNotification(for: item)
-                                await NotificationService.shared.createNotification(for: item)
-                                NotificationService.shared.firstTimeRepeatingNotifications.append(item)
-                            }
-                            else {
-                                await NotificationService.shared.createNotification(for: item)
-                            }
                             dismiss()
+                            await NotificationService.shared.createNotification(for: item)
                         }
                     }
                     .font(.title3)
