@@ -21,9 +21,24 @@ struct SettingsView: View {
             }
             .listBackgroundStyle()
             .foregroundStyle(.black)
-            .alert("Import failed", isPresented: $viewModel.importError) {}
-            .alert("Export failed", isPresented: $viewModel.exportError) {}
-            
+            .settingsError(
+                "Import Error",
+                isPresented: $viewModel.importError,
+                actions: {
+                    Button {} label: {
+                        Text("Ok")
+                    }
+                }
+            )
+            .settingsError(
+                "Export Error",
+                isPresented: $viewModel.exportError,
+                actions: {
+                    Button {} label: {
+                        Text("Ok")
+                    }
+                }
+            )
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {

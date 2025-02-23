@@ -69,4 +69,12 @@ final class UserData {
         StorageService.store(SuruItems)
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: notificationsToRemove)
     }
+    
+    func remove(item: SuruItem) {
+        guard let index = SuruItems.firstIndex(where: { $0 == item }) else { return }
+        let notificationToRemove = [item.id.uuidString, item.id.uuidString + "_repeating"]
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: notificationToRemove)
+        SuruItems.remove(at: index)
+        StorageService.store(SuruItems)
+    }
 }

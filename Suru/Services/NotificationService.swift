@@ -27,27 +27,34 @@ class NotificationService {
     }
     
     func cleanup() {
-        center.setBadgeCount(0)
-        center.removeAllDeliveredNotifications()
-    }
-    
-    func badgeUpdater() {
-        Task.detached(priority: .high) { [weak self] in
-            guard let self = self else { return }
-            let pendingNotifications = await center.pendingNotificationRequests().sorted {
-                guard let lhsTrigger = $0.trigger as? UNCalendarNotificationTrigger, let lhsTriggerDate = lhsTrigger.nextTriggerDate() else { return false }
-                guard let rhsTrigger = $1.trigger as? UNCalendarNotificationTrigger, let rhsTriggerDate = rhsTrigger.nextTriggerDate() else { return false }
-                return lhsTriggerDate < rhsTriggerDate
-            }
-            
-            await MainActor.run {
-                pendingNotifications.enumerated().forEach { index, request in
-                    let updatedContent = request.content.mutableCopy() as! UNMutableNotificationContent
-                    updatedContent.badge = NSNumber(value: index + 1)
-                    let updatedRequest = UNNotificationRequest(identifier: request.identifier, content: updatedContent, trigger: request.trigger)
-                    center.add(updatedRequest)
+        Task {
+            try await center.setBadgeCount(0)
+            let deliveredNotifications = await center.deliveredNotifications()
+            deliveredNotifications.forEach { notification in 
+                var notificationID = notification.request.identifier
+                if notificationID.hasSuffix("_repeating") {
+                    Task {
+                        notificationID = String(notificationID.dropLast(10))
+                        NotificationService.shared.tappedNotification = notificationID
+                        await NotificationService.shared.createRepeatingNotification(notification, notificationID)
+                    }
                 }
             }
+        }
+    }
+    
+    func badgeUpdater() async {
+        let pendingNotifications = await center.pendingNotificationRequests().sorted {
+            guard let lhsTrigger = $0.trigger as? UNCalendarNotificationTrigger, let lhsTriggerDate = lhsTrigger.nextTriggerDate() else { return false }
+            guard let rhsTrigger = $1.trigger as? UNCalendarNotificationTrigger, let rhsTriggerDate = rhsTrigger.nextTriggerDate() else { return false }
+            return lhsTriggerDate < rhsTriggerDate
+        }
+        
+        pendingNotifications.enumerated().forEach { index, request in
+            let updatedContent = request.content.mutableCopy() as! UNMutableNotificationContent
+            updatedContent.badge = NSNumber(value: index + 1)
+            let updatedRequest = UNNotificationRequest(identifier: request.identifier, content: updatedContent, trigger: request.trigger)
+            center.add(updatedRequest)
         }
     }
     
@@ -75,7 +82,7 @@ class NotificationService {
         pendingNotifications.forEach { notification in
             guard let trigger = notification.trigger as? UNCalendarNotificationTrigger else { return }
             guard let triggerDate = trigger.nextTriggerDate() else { return }
-            if dueDate > triggerDate { count += 1 }
+            if dueDate > triggerDate || dueDate == triggerDate { count += 1 }
         }
         return NSNumber(value: count)
     }
@@ -116,13 +123,13 @@ class NotificationService {
         }
     }
     
-    func createRepeatingNotification(_ response: UNNotificationResponse, _ id: String) async {
+    func createRepeatingNotification(_ notification: UNNotification, _ id: String) async {
         do {
-            guard let content = response.notification.request.content.mutableCopy() as? UNMutableNotificationContent else { return }
+            guard let content = notification.request.content.mutableCopy() as? UNMutableNotificationContent else { return }
             guard let frequencyString = content.userInfo["repeatFrequency"] as? String, let frequency = Frequency(rawValue: frequencyString) else { return }
-            guard let badgeDate = Calendar.current.date(byAdding: try frequency.toComponent(), value: 1, to: response.notification.date) else { return }
+            guard let badgeDate = Calendar.current.date(byAdding: try frequency.toComponent(), value: 1, to: notification.date) else { return }
             content.badge = await configureBadge(badgeDate)
-            let dateComponents = configureDateComponents(for: response.notification.date, with: frequency)
+            let dateComponents = configureDateComponents(for: notification.date, with: frequency)
             let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
             let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
             try await center.add(request)

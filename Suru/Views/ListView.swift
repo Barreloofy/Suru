@@ -31,7 +31,9 @@ struct ListView: View {
             guard scenePhase == .active else { return }
             NotificationService.shared.notificationAuthorization()
             NotificationService.shared.cleanup()
-            NotificationService.shared.badgeUpdater()
+            Task {
+                await NotificationService.shared.badgeUpdater()
+            }
         }
         .environment(userData)
     }
@@ -52,13 +54,20 @@ struct ListView: View {
                                 .listRowBackground(Color.clear)
                                 .listRowSeparator(.hidden)
                                 .focused($focusedItem, equals: item.id)
-                        }
-                        .onDelete { IndexSet in
-                            userData.remove(at: IndexSet)
+                                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                    Button {
+                                        userData.remove(item: item)
+                                    } label: {
+                                        Text("Delete")
+                                    }
+                                    .foregroundStyle(.pastelGray)
+                                    .tint(.autumnRed)
+                                }
                         }
                     }
                     .listStyle(.plain)
                     .scrollContentBackground(.hidden)
+                    .animation(.default, value: userData.SuruItems)
                     .onChange(of: scenePhase) {
                         guard scenePhase == .active else { return }
                         viewModel.scrollToItem(proxy: proxy)
@@ -67,9 +76,10 @@ struct ListView: View {
                         userData.update()
                     }
                     .onChange(of: userData.SuruItems.count) {
-                        withAnimation {
-                            viewModel.scrollToItem(proxy: proxy, userData.SuruItems, userData.SuruItems.count - 1)
-                        }
+                        viewModel.scrollToItem(proxy: proxy, userData.SuruItems, userData.SuruItems.count - 1)
+                    }
+                    .onTapGesture {
+                        focusedItem = nil
                     }
                 }
             }

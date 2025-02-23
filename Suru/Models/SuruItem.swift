@@ -7,10 +7,14 @@
 
 import Foundation
 
-struct SuruItem: Identifiable, Hashable, Comparable, Codable {
+struct SuruItem: Identifiable, Comparable, Codable {
     static func < (lhs: SuruItem, rhs: SuruItem) -> Bool {
         guard !lhs.content.isEmpty else { return false }
         return lhs.dueDate < rhs.dueDate ? true : false
+    }
+    
+    static func == (lhs: SuruItem, rhs: SuruItem) -> Bool {
+        return lhs.id == rhs.id
     }
     
     let id: UUID

@@ -20,11 +20,23 @@ class AppDelegate: NSObject, UIApplicationDelegate, @preconcurrency UNUserNotifi
             Task {
                 notificationID = String(notificationID.dropLast(10))
                 NotificationService.shared.tappedNotification = notificationID
-                await NotificationService.shared.createRepeatingNotification(response, notificationID)
+                await NotificationService.shared.createRepeatingNotification(response.notification, notificationID)
             }
         }
         else {
             NotificationService.shared.tappedNotification = notificationID
         }
+    }
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
+        var notificationID = notification.request.identifier
+        if notificationID.hasSuffix("_repeating") {
+            Task {
+                notificationID = String(notificationID.dropLast(10))
+                NotificationService.shared.tappedNotification = notificationID
+                await NotificationService.shared.createRepeatingNotification(notification, notificationID)
+            }
+        }
+        return []
     }
 }

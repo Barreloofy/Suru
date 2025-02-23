@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		290EB2E02CC94292005CC61C /* StorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 290EB2DF2CC94292005CC61C /* StorageService.swift */; };
+		290FE9B42D6A6DCA00F1B360 /* DetailVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 290FE9B32D6A6DC200F1B360 /* DetailVM.swift */; };
+		290FE9B62D6A8B4E00F1B360 /* SettingsError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 290FE9B52D6A8B4E00F1B360 /* SettingsError.swift */; };
 		292315892CC85D100073A842 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 292315832CC85D100073A842 /* Preview Assets.xcassets */; };
 		2923158A2CC85D100073A842 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 292315852CC85D100073A842 /* Assets.xcassets */; };
 		2923158C2CC85D100073A842 /* SuruApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 292315872CC85D100073A842 /* SuruApp.swift */; };
@@ -30,6 +32,8 @@
 
 /* Begin PBXFileReference section */
 		290EB2DF2CC94292005CC61C /* StorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageService.swift; sourceTree = "<group>"; };
+		290FE9B32D6A6DC200F1B360 /* DetailVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailVM.swift; sourceTree = "<group>"; };
+		290FE9B52D6A8B4E00F1B360 /* SettingsError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsError.swift; sourceTree = "<group>"; };
 		292315722CC85CF30073A842 /* Suru.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Suru.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		292315832CC85D100073A842 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		292315852CC85D100073A842 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -111,6 +115,7 @@
 				29B66B6A2CC9838500701724 /* SettingsView.swift */,
 				295D1F512D627D4300D3B452 /* ViewModifiers.swift */,
 				29D569552D4E7B1B006E7C9B /* LaunchScreen.storyboard */,
+				290FE9B52D6A8B4E00F1B360 /* SettingsError.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -118,10 +123,11 @@
 		2923158E2CC85D2A0073A842 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
-				292BB44B2D68E5E9007B8860 /* ItemVM.swift */,
+				290FE9B32D6A6DC200F1B360 /* DetailVM.swift */,
 				292315942CC861220073A842 /* UserData.swift */,
-				29721F082D60E1F90047372E /* SettingsVM.swift */,
 				29A4631C2D66706A00FC92D4 /* ListVM.swift */,
+				292BB44B2D68E5E9007B8860 /* ItemVM.swift */,
+				29721F082D60E1F90047372E /* SettingsVM.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -228,12 +234,14 @@
 				292315972CC86B620073A842 /* SuruItemView.swift in Sources */,
 				295D1F522D627D4300D3B452 /* ViewModifiers.swift in Sources */,
 				292315912CC85D9C0073A842 /* ListView.swift in Sources */,
+				290FE9B62D6A8B4E00F1B360 /* SettingsError.swift in Sources */,
 				29A4631D2D66706A00FC92D4 /* ListVM.swift in Sources */,
 				29FFB7AA2D65147700CF5311 /* AppDelegate.swift in Sources */,
 				2923158C2CC85D100073A842 /* SuruApp.swift in Sources */,
 				29C9AE6F2CCD2E3600FAE547 /* NotificationService.swift in Sources */,
 				290EB2E02CC94292005CC61C /* StorageService.swift in Sources */,
 				29721F092D60E1F90047372E /* SettingsVM.swift in Sources */,
+				290FE9B42D6A6DCA00F1B360 /* DetailVM.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -9,8 +9,7 @@ import SwiftUI
 
 struct DetailView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var text = ""
-    @State private var alert = UserDefaults.standard.bool(forKey: "defaultAlertValue")
+    @State private var viewModel = DetailViewModel()
     @Binding var item: SuruItem
     
     var body: some View {
@@ -24,18 +23,8 @@ struct DetailView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Set") {
-                        item.content = text
-                        item.alert = alert
-                        guard item.alert else {
-                            dismiss()
-                            let center = UNUserNotificationCenter.current()
-                            center.removePendingNotificationRequests(withIdentifiers: [item.id.uuidString])
-                            return
-                        }
-                        Task {
-                            dismiss()
-                            await NotificationService.shared.createNotification(for: item)
-                        }
+                        dismiss()
+                        viewModel.set(for: $item)
                     }
                     .font(.title3)
                 }
@@ -46,19 +35,19 @@ struct DetailView: View {
             }
         }
         .onAppear {
-            text = item.content
+            viewModel.text = item.content
         }
     }
     
     @ViewBuilder private var FormContent: some View {
-        TextField("Suru...", text: $text, axis: .vertical)
+        TextField("Suru...", text: $viewModel.text, axis: .vertical)
             .rowStyle()
-            .onChange(of: text) {
-                text.lengthEnforcer()
+            .onChange(of: viewModel.text) {
+                viewModel.text.lengthEnforcer()
             }
         
         Group {
-            Toggle("Alert", isOn: $alert)
+            Toggle("Alert", isOn: $viewModel.alert)
             
             DatePicker("Dueby:", selection: $item.dueDate)
                 .tint(.black)
