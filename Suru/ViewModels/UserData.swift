@@ -8,6 +8,7 @@
 import Foundation
 import UserNotifications
 import Combine
+import OSLog
 
 @MainActor
 @Observable
@@ -20,7 +21,7 @@ final class UserData {
     }
     
     private func loadUserData() {
-        try! SuruItems = StorageService.retrieve()
+        SuruItems = StorageService.retrieve()
     }
     
     private func debounce() {
@@ -28,7 +29,10 @@ final class UserData {
         timer = Timer.publish(every: 0.5, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in
-                guard let self = self else { return }
+                guard let self = self else {
+                    Logger().error("Self in closure #1 of debounce() function resolved to nil")
+                    return
+                }
                 timer?.cancel()
                 timer = nil
                 sortSuruItems()

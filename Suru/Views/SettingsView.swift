@@ -25,7 +25,9 @@ struct SettingsView: View {
                 "Import Error",
                 isPresented: $viewModel.importError,
                 actions: {
-                    Button {} label: {
+                    Button {
+                        viewModel.importError.toggle()
+                    } label: {
                         Text("Ok")
                     }
                 }
@@ -34,7 +36,9 @@ struct SettingsView: View {
                 "Export Error",
                 isPresented: $viewModel.exportError,
                 actions: {
-                    Button {} label: {
+                    Button {
+                        viewModel.exportError.toggle()
+                    } label: {
                         Text("Ok")
                     }
                 }

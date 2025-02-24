@@ -9,7 +9,7 @@ import Foundation
 import OSLog
 import UserNotifications
 
-private let logger = Logger(subsystem: "com.settings.suru", category: "Error")
+fileprivate let logger = Logger(subsystem: "com.Settings.suru", category: "Error")
 
 @MainActor
 @Observable

@@ -21,7 +21,7 @@ struct SuruItemView: View {
             AlertStatusDate()
         }
         .foregroundStyle(item.completed ? .gray : .black)
-        .sheet(isPresented: $viewModel.showSheet) {
+        .sheet(isPresented: $viewModel.showDetails) {
             DetailView(item: $item)
         }
     }
@@ -35,7 +35,7 @@ struct SuruItemView: View {
         }
         .buttonStyle(.borderless)
         .onChange(of: item.completed) {
-            viewModel.completionHandler(item)
+            viewModel.completionHandler($item)
         }
         
         TextField("Suru...", text: $item.content)
@@ -48,11 +48,12 @@ struct SuruItemView: View {
         
         if textFieldIsFocused {
             Button {
-                viewModel.showSheet.toggle()
+                viewModel.showDetails.toggle()
                 textFieldIsFocused = false
             } label: {
                 Image(systemName: "info.circle")
             }
+            .buttonStyle(.borderless)
         }
     }
     

@@ -9,8 +9,13 @@ import SwiftUI
 
 struct DetailView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var viewModel = DetailViewModel()
+    @State private var viewModel: DetailViewModel
     @Binding var item: SuruItem
+    
+    init(item: Binding<SuruItem>) {
+        self._item = item
+        self._viewModel = State(initialValue: DetailViewModel(text: item.wrappedValue.content))
+    }
     
     var body: some View {
         NavigationStack {
@@ -35,7 +40,7 @@ struct DetailView: View {
             }
         }
         .onAppear {
-            viewModel.text = item.content
+            viewModel.initiateAlert(item.alert)
         }
     }
     

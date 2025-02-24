@@ -6,7 +6,8 @@
 //
 
 import SwiftUI
-#warning("Doesn't dismiss itself yet")
+
+// Doesn't dismiss itself yet
 struct SettingsError<A,M>: ViewModifier where A : View, M : View {
     let titleKey: LocalizedStringKey
     var isPresented: Binding<Bool>

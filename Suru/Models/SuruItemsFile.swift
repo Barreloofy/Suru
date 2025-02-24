@@ -7,6 +7,9 @@
 
 import UniformTypeIdentifiers
 import SwiftUI
+import OSLog
+
+fileprivate let logger = Logger(subsystem: "com.SuruItemsFile.Suru", category: "Error")
 
 struct SuruItemsFile: FileDocument {
     static let readableContentTypes: [UTType] = [.json]
@@ -17,13 +20,25 @@ struct SuruItemsFile: FileDocument {
     }
     
     init(configuration: ReadConfiguration) throws {
-        guard let data = configuration.file.regularFileContents else { throw FileError.configurationError }
-        suruItems = try JSONDecoder().decode([SuruItem].self, from: data)
+        do {
+            guard let data = configuration.file.regularFileContents else {
+                throw FileError.configurationError
+            }
+            suruItems = try JSONDecoder().decode([SuruItem].self, from: data)
+        } catch {
+            logger.error("\(error)")
+            throw error
+        }
     }
     
     func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
-        let data = try JSONEncoder().encode(suruItems)
-        return FileWrapper(regularFileWithContents: data)
+        do {
+            let data = try JSONEncoder().encode(suruItems)
+            return FileWrapper(regularFileWithContents: data)
+        } catch {
+            logger.error("\(error)")
+            throw error
+        }
     }
 }
 
@@ -34,7 +49,7 @@ extension SuruItemsFile {
         var localizedDescription: String {
             switch self {
                 case .configurationError:
-                    return "configuration.file.regularFileContents in init(configuration: ReadConfiguration) throws produced an error"
+                    return "configuration.file.regularFileContents resolved to nil"
             }
         }
     }

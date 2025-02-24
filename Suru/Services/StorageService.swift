@@ -6,25 +6,42 @@
 //
 
 import Foundation
+import OSLog
+
+fileprivate let logger = Logger(subsystem: "com.StorageService.Suru", category: "Error")
 
 struct StorageService {
-    static var userDataFileURL: URL {
-        let documentsDirectory = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
-        return documentsDirectory.appendingPathComponent("SuruUserData", conformingTo: .json)
+    static func userDataFileURL() throws -> URL {
+        do {
+            let documentsDirectory = try FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+            return documentsDirectory.appendingPathComponent("SuruUserData", conformingTo: .json)
+        } catch {
+            logger.error("\(error)")
+            throw error
+        }
     }
     
     static func store(_ suruItems: [SuruItem]) {
-        let compactSuruItems = suruItems.compactMap { element in
-            element.content.isEmpty ? nil : element
+        do {
+            let compactSuruItems = suruItems.compactMap { element in
+                element.content.isEmpty ? nil : element
+            }
+            let data = try JSONEncoder().encode(compactSuruItems)
+            try data.write(to: userDataFileURL())
+        } catch {
+            logger.error("\(error)")
         }
-        guard let data = try? JSONEncoder().encode(compactSuruItems) else { return }
-        try! data.write(to: userDataFileURL)
     }
     
-    static func retrieve() throws -> [SuruItem] {
-        guard FileManager.default.fileExists(atPath: userDataFileURL.path()) else { return [] }
-        let data = try Data(contentsOf: userDataFileURL)
-        let decodedSuruItems = try JSONDecoder().decode([SuruItem].self, from: data)
-        return decodedSuruItems
+    static func retrieve() -> [SuruItem] {
+        do {
+            guard FileManager.default.fileExists(atPath: try userDataFileURL().path()) else { return [] }
+            let data = try Data(contentsOf: userDataFileURL())
+            let decodedSuruItems = try JSONDecoder().decode([SuruItem].self, from: data)
+            return decodedSuruItems
+        } catch {
+            logger.error("\(error)")
+            fatalError()
+        }
     }
 }

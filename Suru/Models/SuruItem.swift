@@ -13,10 +13,6 @@ struct SuruItem: Identifiable, Comparable, Codable {
         return lhs.dueDate < rhs.dueDate ? true : false
     }
     
-    static func == (lhs: SuruItem, rhs: SuruItem) -> Bool {
-        return lhs.id == rhs.id
-    }
-    
     let id: UUID
     var dueDate: Date
     var content: String
@@ -38,8 +34,15 @@ enum Frequency: String, CaseIterable, Identifiable, Codable {
     case Never, Hourly, Daily, Weekly, Monthly, Yearly
     var id: Self { self }
     
-    private enum FrequencyError: String, Error {
-        case noAssociatedComponent = "Value 'Never' dosen't correspond to any Component"
+    private enum FrequencyError: Error, LocalizedError {
+        case noAssociatedComponent
+        
+        var localizedDescription: String {
+            switch self {
+                case .noAssociatedComponent:
+                    return "Value 'Never' dosen't correspond to any Component"
+            }
+        }
     }
     
     func toComponent() throws -> Calendar.Component {

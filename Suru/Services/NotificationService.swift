@@ -9,7 +9,7 @@ import Foundation
 @preconcurrency import UserNotifications
 import OSLog
 
-private let logger = Logger(subsystem: "com.NotificationService.suru", category: "Error")
+fileprivate let logger = Logger(subsystem: "com.NotificationService.suru", category: "Error")
 
 @MainActor
 class NotificationService {
@@ -28,30 +28,44 @@ class NotificationService {
     
     func cleanup() {
         Task {
-            try await center.setBadgeCount(0)
-            let deliveredNotifications = await center.deliveredNotifications()
-            deliveredNotifications.forEach { notification in 
-                var notificationID = notification.request.identifier
-                if notificationID.hasSuffix("_repeating") {
-                    Task {
-                        notificationID = String(notificationID.dropLast(10))
-                        NotificationService.shared.tappedNotification = notificationID
-                        await NotificationService.shared.createRepeatingNotification(notification, notificationID)
+            do {
+                try await center.setBadgeCount(0)
+                let deliveredNotifications = await center.deliveredNotifications()
+                deliveredNotifications.forEach { notification in
+                    var notificationID = notification.request.identifier
+                    if notificationID.hasSuffix("_repeating") {
+                        Task {
+                            notificationID = String(notificationID.dropLast(10))
+                            NotificationService.shared.tappedNotification = notificationID
+                            await NotificationService.shared.createRepeatingNotification(notification, notificationID)
+                        }
                     }
                 }
+            } catch {
+                logger.error("\(error)")
             }
         }
     }
     
     func badgeUpdater() async {
         let pendingNotifications = await center.pendingNotificationRequests().sorted {
-            guard let lhsTrigger = $0.trigger as? UNCalendarNotificationTrigger, let lhsTriggerDate = lhsTrigger.nextTriggerDate() else { return false }
-            guard let rhsTrigger = $1.trigger as? UNCalendarNotificationTrigger, let rhsTriggerDate = rhsTrigger.nextTriggerDate() else { return false }
+            guard let lhsTrigger = $0.trigger as? UNCalendarNotificationTrigger, let lhsTriggerDate = lhsTrigger.nextTriggerDate() else {
+                logger.info("Type cast or conditional unwrapping failed")
+                return false
+            }
+            guard let rhsTrigger = $1.trigger as? UNCalendarNotificationTrigger, let rhsTriggerDate = rhsTrigger.nextTriggerDate() else {
+                logger.info("Type cast or conditional unwrapping failed")
+                return false
+            }
             return lhsTriggerDate < rhsTriggerDate
         }
         
         pendingNotifications.enumerated().forEach { index, request in
-            let updatedContent = request.content.mutableCopy() as! UNMutableNotificationContent
+            let content = request.content
+            guard let updatedContent = content.mutableCopy() as? UNMutableNotificationContent else {
+                logger.info("Type cast failed")
+                return
+            }
             updatedContent.badge = NSNumber(value: index + 1)
             let updatedRequest = UNNotificationRequest(identifier: request.identifier, content: updatedContent, trigger: request.trigger)
             center.add(updatedRequest)
@@ -80,8 +94,14 @@ class NotificationService {
         let pendingNotifications = await center.pendingNotificationRequests()
         var count = 1
         pendingNotifications.forEach { notification in
-            guard let trigger = notification.trigger as? UNCalendarNotificationTrigger else { return }
-            guard let triggerDate = trigger.nextTriggerDate() else { return }
+            guard let trigger = notification.trigger as? UNCalendarNotificationTrigger else {
+                logger.info("Type cast failed")
+                return
+            }
+            guard let triggerDate = trigger.nextTriggerDate() else {
+                logger.info("Type cast failed")
+                return
+            }
             if dueDate > triggerDate || dueDate == triggerDate { count += 1 }
         }
         return NSNumber(value: count)
@@ -137,7 +157,7 @@ class NotificationService {
             logger.error("\(error)")
         }
     }
-#warning("In progress, repeating notification handling missing")
+    
     func completionCheck(for item: SuruItem) {
         guard item.repeatFrequency == .Never else { return }
         switch item.alert {

@@ -14,6 +14,10 @@ final class DetailViewModel {
     var text = ""
     var alert = UserDefaults.standard.bool(forKey: "defaultAlertValue")
     
+    init(text: String) {
+        self.text = text
+    }
+    
     func set(for item: Binding<SuruItem>) {
         item.wrappedValue.content = text
         item.wrappedValue.alert = alert
@@ -24,6 +28,14 @@ final class DetailViewModel {
         }
         Task {
             await NotificationService.shared.createNotification(for: item.wrappedValue)
+        }
+    }
+    
+    func initiateAlert(_ itemAlert: Bool) {
+        Task {
+            guard let result = try? await UNUserNotificationCenter.current().requestAuthorization() else { return }
+            guard result && itemAlert else { return }
+            alert = true
         }
     }
 }
