@@ -7,7 +7,8 @@
 
 import SwiftUI
 
-// Doesn't dismiss itself yet
+/*  Doesn't dismiss itself */
+
 struct SettingsError<A,M>: ViewModifier where A : View, M : View {
     let titleKey: LocalizedStringKey
     var isPresented: Binding<Bool>
@@ -26,6 +27,11 @@ struct SettingsError<A,M>: ViewModifier where A : View, M : View {
             content
             if isPresented.wrappedValue {
                 GeometryReader { proxy in
+                    
+                    let xPosition = proxy.size.width / 2
+                    let yPosition = proxy.size.height / 2
+                    let width = proxy.size.width * 0.70
+                    
                     VStack {
                         Text(titleKey)
                         message()
@@ -36,11 +42,11 @@ struct SettingsError<A,M>: ViewModifier where A : View, M : View {
                     }
                     .padding(.vertical)
                     .bold()
-                    .foregroundStyle(.pastelGray)
-                    .background(.autumnRed)
+                    .foregroundStyle(DesignSystem.Colors.background)
+                    .background(DesignSystem.Colors.secondary)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
-                    .frame(width: proxy.size.width * 0.70)
+                    .position(x: xPosition, y: yPosition)
+                    .frame(width: width)
                 }
             }
         }

@@ -20,7 +20,7 @@ struct SettingsView: View {
                 UserDataSettings
             }
             .listBackgroundStyle()
-            .foregroundStyle(.black)
+            .foregroundStyle(DesignSystem.Colors.primaryText)
             .settingsError(
                 "Import Error",
                 isPresented: $viewModel.importError,
@@ -63,7 +63,7 @@ struct SettingsView: View {
     @ViewBuilder private var AlertSetting: some View {
         Group {
             Toggle("Alert", isOn: $defaultAlertValue)
-                .tint(.autumnGreen)
+                .tint(DesignSystem.Colors.tint)
                 .opacity(NotificationService.shared.notificationPermission ? 1.0 : 0.25)
                 .disabled(NotificationService.shared.notificationPermission ? false : true)
             NotificationService.shared.alertText()

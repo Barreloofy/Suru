@@ -39,7 +39,7 @@ struct SuruItemView: View {
         }
         
         TextField("Suru...", text: $item.content)
-            .tint(.autumnGreen)
+            .tint(DesignSystem.Colors.tint)
             .focused($textFieldIsFocused)
             .disabled(item.completed ? true : false)
             .onChange(of: item.content) {
@@ -71,7 +71,12 @@ struct SuruItemView: View {
                 }
             }
         }
-        .foregroundStyle(item.dueDate < Date() ? .autumnRed : .black)
+        .foregroundStyle(
+            item.dueDate > Date() ?
+            DesignSystem.Colors.primaryText
+            :
+            DesignSystem.Colors.secondary
+        )
     }
 }
 

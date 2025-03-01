@@ -16,7 +16,7 @@ struct ListView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color(.pastelGray).ignoresSafeArea()
+                DesignSystem.Colors.background.ignoresSafeArea()
                 MainContent
                     .toolbar {
                         ToolbarItem(placement: .topBarLeading) { TitleContent() }
@@ -25,7 +25,7 @@ struct ListView: View {
                     .toolbarStyle()
             }
             .bold()
-            .foregroundStyle(.autumnOrange)
+            .foregroundStyle(DesignSystem.Colors.primary)
         }
         .onChange(of: scenePhase) {
             guard scenePhase == .active else { return }
@@ -60,8 +60,8 @@ struct ListView: View {
                                     } label: {
                                         Text("Delete")
                                     }
-                                    .foregroundStyle(.pastelGray)
-                                    .tint(.autumnRed)
+                                    .foregroundStyle(DesignSystem.Colors.background)
+                                    .tint(DesignSystem.Colors.secondary)
                                 }
                         }
                     }

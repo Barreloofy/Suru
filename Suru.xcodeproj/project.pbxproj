@@ -10,6 +10,7 @@
 		290EB2E02CC94292005CC61C /* StorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 290EB2DF2CC94292005CC61C /* StorageService.swift */; };
 		290FE9B42D6A6DCA00F1B360 /* DetailVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 290FE9B32D6A6DC200F1B360 /* DetailVM.swift */; };
 		290FE9B62D6A8B4E00F1B360 /* SettingsError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 290FE9B52D6A8B4E00F1B360 /* SettingsError.swift */; };
+		2921DE102D7381AA00FF4C4F /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2921DE0F2D7381AA00FF4C4F /* DesignSystem.swift */; };
 		292315892CC85D100073A842 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 292315832CC85D100073A842 /* Preview Assets.xcassets */; };
 		2923158A2CC85D100073A842 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 292315852CC85D100073A842 /* Assets.xcassets */; };
 		2923158C2CC85D100073A842 /* SuruApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 292315872CC85D100073A842 /* SuruApp.swift */; };
@@ -34,6 +35,7 @@
 		290EB2DF2CC94292005CC61C /* StorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageService.swift; sourceTree = "<group>"; };
 		290FE9B32D6A6DC200F1B360 /* DetailVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailVM.swift; sourceTree = "<group>"; };
 		290FE9B52D6A8B4E00F1B360 /* SettingsError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsError.swift; sourceTree = "<group>"; };
+		2921DE0F2D7381AA00FF4C4F /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
 		292315722CC85CF30073A842 /* Suru.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Suru.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		292315832CC85D100073A842 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		292315852CC85D100073A842 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -109,6 +111,7 @@
 		2923158D2CC85D210073A842 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				2921DE0F2D7381AA00FF4C4F /* DesignSystem.swift */,
 				292315902CC85D9C0073A842 /* ListView.swift */,
 				292315962CC86B620073A842 /* SuruItemView.swift */,
 				292315982CC8717E0073A842 /* DetailView.swift */,
@@ -237,6 +240,7 @@
 				290FE9B62D6A8B4E00F1B360 /* SettingsError.swift in Sources */,
 				29A4631D2D66706A00FC92D4 /* ListVM.swift in Sources */,
 				29FFB7AA2D65147700CF5311 /* AppDelegate.swift in Sources */,
+				2921DE102D7381AA00FF4C4F /* DesignSystem.swift in Sources */,
 				2923158C2CC85D100073A842 /* SuruApp.swift in Sources */,
 				29C9AE6F2CCD2E3600FAE547 /* NotificationService.swift in Sources */,
 				290EB2E02CC94292005CC61C /* StorageService.swift in Sources */,

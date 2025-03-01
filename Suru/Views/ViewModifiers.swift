@@ -11,7 +11,7 @@ struct ListBackgroundStyle: ViewModifier {
     func body(content: Content) -> some View {
         content
             .scrollContentBackground(.hidden)
-            .background(Color(.pastelGray))
+            .background(DesignSystem.Colors.background)
     }
 }
 
@@ -26,7 +26,7 @@ extension View {
 struct RowStyle: ViewModifier {
     func body(content: Content) -> some View {
         content
-            .listRowBackground(Color.autumnOrange.opacity(0.75))
+            .listRowBackground(DesignSystem.Colors.primary.opacity(0.75))
             .listRowSeparator(.hidden)
     }
 }

@@ -23,8 +23,8 @@ struct DetailView: View {
                 FormContent
             }
             .listBackgroundStyle()
-            .foregroundStyle(.black)
-            .tint(.autumnGreen)
+            .foregroundStyle(DesignSystem.Colors.primaryText)
+            .tint(DesignSystem.Colors.tint)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Set") {
@@ -55,14 +55,14 @@ struct DetailView: View {
             Toggle("Alert", isOn: $viewModel.alert)
             
             DatePicker("Dueby:", selection: $item.dueDate)
-                .tint(.black)
+                .tint(DesignSystem.Colors.primaryText)
             
             Picker("Repeat", selection: $item.repeatFrequency) {
                 ForEach(Frequency.allCases) { frequency in
                     Text(frequency.rawValue)
                 }
             }
-            .tint(.black)
+            .tint(DesignSystem.Colors.primaryText)
         }
         .rowStyle()
         .disabled(NotificationService.shared.notificationPermission ? false : true)
