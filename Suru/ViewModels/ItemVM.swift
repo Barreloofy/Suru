@@ -37,19 +37,33 @@ final class ItemViewModel {
                 do {
                     guard let repeatingNotification = await UNUserNotificationCenter.current()
                         .pendingNotificationRequests()
-                        .first(where: {  $0.identifier == item.wrappedValue.id.uuidString })
+                        .first(where: {
+                            $0.identifier == item.wrappedValue.id.uuidString
+                            ||
+                            $0.identifier == item.wrappedValue.id.uuidString + "_repeating"
+                        })
+                    else {
+                        await NotificationService.shared.createRepeatingNotification(for: item.wrappedValue)
+                        try await Task.sleep(for: .seconds(0.25))
+                        item.wrappedValue.completed = false
+                        return
+                    }
+                    
+                    guard let trigger = repeatingNotification.trigger as? UNCalendarNotificationTrigger
                     else {
                         throw ItemError.nilValue
                     }
-                    guard let trigger = repeatingNotification.trigger as? UNCalendarNotificationTrigger else {
+                    
+                    guard let triggerDate = trigger.nextTriggerDate()
+                    else {
                         throw ItemError.nilValue
                     }
-                    guard let triggerDate = trigger.nextTriggerDate() else {
-                        throw ItemError.nilValue
-                    }
-                    item.wrappedValue.dueDate = triggerDate
+                    
+                    let dueDate = item.wrappedValue.dueDate
+                    item.wrappedValue.dueDate = dueDate > triggerDate ? dueDate : triggerDate
                     try await Task.sleep(for: .seconds(0.25))
                     item.wrappedValue.completed = false
+                    
                 } catch {
                     logger.error("\(error)")
                 }

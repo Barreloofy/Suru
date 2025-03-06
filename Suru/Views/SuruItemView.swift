@@ -53,7 +53,7 @@ struct SuruItemView: View {
             } label: {
                 Image(systemName: "info.circle")
             }
-            .buttonStyle(.borderless)
+            .buttonStyle(.plain)
         }
     }
     
