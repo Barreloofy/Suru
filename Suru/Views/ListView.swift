@@ -78,9 +78,6 @@ struct ListView: View {
                     .onChange(of: userData.SuruItems.count) {
                         viewModel.scrollToItem(proxy: proxy, userData.SuruItems, userData.SuruItems.count - 1)
                     }
-                    .onTapGesture {
-                        focusedItem = nil
-                    }
                 }
             }
         }
