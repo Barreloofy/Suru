@@ -33,11 +33,15 @@ struct SettingsError<A,M>: ViewModifier where A : View, M : View {
                     let width = proxy.size.width * 0.70
                     
                     VStack {
+                        
                         Text(titleKey)
+                        
                         message()
+                        
                         Divider()
                             .frame(maxHeight: 1)
                             .background(Color(.gray))
+                        
                         actions()
                     }
                     .padding(.vertical)

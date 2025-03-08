@@ -19,13 +19,16 @@ struct ListView: View {
                 DesignSystem.Colors.background.ignoresSafeArea()
                 MainContent
                     .toolbar {
-                        ToolbarItem(placement: .topBarLeading) { TitleContent() }
+                        ToolbarItem(placement: .topBarLeading) { TitleContent }
                         ToolbarItemGroup(placement: .bottomBar) { ToolbarContent }
                     }
                     .toolbarStyle()
             }
             .bold()
             .foregroundStyle(DesignSystem.Colors.primary)
+            .onLongPressGesture {
+                focusedItem = nil
+            }
         }
         .onChange(of: scenePhase) {
             guard scenePhase == .active else { return }
@@ -104,7 +107,8 @@ struct ListView: View {
         }
     }
     
-    private func TitleContent() -> some View {
+    
+    private var TitleContent: some View {
         Text("Suru")
             .font(.title)
     }

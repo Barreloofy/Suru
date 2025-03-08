@@ -15,9 +15,7 @@ struct SuruItemView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            HStack {
-                RowContent
-            }
+            RowContent
             AlertStatusDate()
         }
         .foregroundStyle(item.completed ? .gray : .black)
@@ -28,32 +26,34 @@ struct SuruItemView: View {
     
     
     @ViewBuilder private var RowContent: some View {
-        Button {
-            item.completed.toggle()
-        } label: {
-            Image(systemName: item.completed ? "circle.circle.fill" : "circle")
-        }
-        .buttonStyle(.borderless)
-        .onChange(of: item.completed) {
-            viewModel.completionHandler($item)
-        }
-        
-        TextField("Suru...", text: $item.content)
-            .tint(DesignSystem.Colors.tint)
-            .focused($textFieldIsFocused)
-            .disabled(item.completed ? true : false)
-            .onChange(of: item.content) {
-                viewModel.updateItem($item)
-            }
-        
-        if textFieldIsFocused {
+        HStack {
             Button {
-                viewModel.showDetails.toggle()
-                textFieldIsFocused = false
+                item.completed.toggle()
             } label: {
-                Image(systemName: "info.circle")
+                Image(systemName: item.completed ? "circle.circle.fill" : "circle")
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.borderless)
+            .onChange(of: item.completed) {
+                viewModel.completionHandler($item)
+            }
+            
+            TextField("Suru...", text: $item.content)
+                .tint(DesignSystem.Colors.tint)
+                .focused($textFieldIsFocused)
+                .disabled(item.completed ? true : false)
+                .onChange(of: item.content) {
+                    viewModel.updateItem($item)
+                }
+            
+            if textFieldIsFocused {
+                Button {
+                    viewModel.showDetails.toggle()
+                    textFieldIsFocused = false
+                } label: {
+                    Image(systemName: "info.circle")
+                }
+                .buttonStyle(.plain)
+            }
         }
     }
     

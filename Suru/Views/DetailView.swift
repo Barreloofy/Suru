@@ -45,6 +45,7 @@ struct DetailView: View {
         }
     }
     
+    
     @ViewBuilder private var FormContent: some View {
         TextField("Suru...", text: $viewModel.text, axis: .vertical)
             .onChange(of: viewModel.text) {

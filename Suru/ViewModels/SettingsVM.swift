@@ -41,8 +41,10 @@ final class SettingsViewModel {
                 do {
                     let data = try Data(contentsOf: success)
                     let decodedSuruItems = try JSONDecoder().decode([SuruItem].self, from: data)
+                    
                     suruItems = decodedSuruItems
                     StorageService.store(suruItems)
+                    
                     UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
                 } catch {
                     logger.error("\(error)")

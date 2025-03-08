@@ -21,11 +21,13 @@ final class DetailViewModel {
     func set(for item: Binding<SuruItem>) {
         item.wrappedValue.content = text
         item.wrappedValue.alert = alert
+        
         guard item.wrappedValue.alert else {
             let center = UNUserNotificationCenter.current()
             center.removePendingNotificationRequests(withIdentifiers: [item.wrappedValue.id.uuidString])
             return
         }
+        
         Task {
             await NotificationService.shared.createNotification(for: item.wrappedValue)
         }

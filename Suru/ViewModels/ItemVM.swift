@@ -73,6 +73,7 @@ final class ItemViewModel {
     
     func updateItem(_ item: Binding<SuruItem>) {
         guard !showDetails else { return }
+        
         item.wrappedValue.content.lengthEnforcer()
         guard item.wrappedValue.alert else { return }
         debounceNotificationUpdate(item.wrappedValue)
