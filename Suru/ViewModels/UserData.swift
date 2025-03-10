@@ -13,14 +13,10 @@ import OSLog
 @MainActor
 @Observable
 final class UserData {
-    var SuruItems = [SuruItem]()
+    var SuruItems: [SuruItem]
     private var timer: AnyCancellable?
     
     init() {
-        loadUserData()
-    }
-    
-    private func loadUserData() {
         SuruItems = StorageService.retrieve()
     }
     
@@ -74,8 +70,8 @@ final class UserData {
             notificationsToRemove.append(idWithSuffix)
         }
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: notificationsToRemove)
-        
         SuruItems.remove(atOffsets: indexSet)
+        
         StorageService.store(SuruItems)
     }
     
@@ -86,8 +82,8 @@ final class UserData {
         UNUserNotificationCenter.current().removePendingNotificationRequests(
             withIdentifiers: notificationToRemove
         )
-        
         SuruItems.remove(at: index)
+        
         StorageService.store(SuruItems)
     }
 }

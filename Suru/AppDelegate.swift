@@ -7,14 +7,30 @@
 
 import UIKit
 import UserNotifications
+import OSLog
 
 class AppDelegate: NSObject, UIApplicationDelegate, @preconcurrency UNUserNotificationCenterDelegate {
+    private var completedItems = UserDefaults.standard.stringArray(forKey: "completedItems") {
+        didSet {
+            UserDefaults.standard.set(completedItems, forKey: "completedItems")
+        }
+    }
+    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         UNUserNotificationCenter.current().delegate = self
+        NotificationService.shared.setupNotificationCategories()
         return true
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
+        
+        switch response.actionIdentifier {
+            case "CompleteAction":
+                completedItems?.append(response.notification.request.identifier)
+            default:
+                Logger().error("Unknown actionIdentifier")
+        }
+        
         var notificationID = response.notification.request.identifier
         if notificationID.hasSuffix("_repeating") {
             Task {

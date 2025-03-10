@@ -26,11 +26,26 @@ class NotificationService {
         }
     }
     
+    func setupNotificationCategories() {
+        let completeAction = UNNotificationAction(
+            identifier: "CompleteAction",
+            title: "Complete",
+            options: [],
+            icon: UNNotificationActionIcon(systemImageName: "circle.circle")
+        )
+        
+        let suruCategory = UNNotificationCategory(identifier: "SuruCategory", actions: [completeAction], intentIdentifiers: [])
+        
+        center.setNotificationCategories([suruCategory])
+    }
+    
     func cleanup() {
         Task {
             do {
                 try await center.setBadgeCount(0)
+                
                 let deliveredNotifications = await center.deliveredNotifications()
+                
                 deliveredNotifications.forEach { notification in
                     var notificationID = notification.request.identifier
                     if notificationID.hasSuffix("_repeating") {
@@ -49,25 +64,35 @@ class NotificationService {
     
     func badgeUpdater() async {
         let pendingNotifications = await center.pendingNotificationRequests().sorted {
+            
             guard let lhsTrigger = $0.trigger as? UNCalendarNotificationTrigger, let lhsTriggerDate = lhsTrigger.nextTriggerDate() else {
                 logger.info("Type cast or conditional unwrapping failed")
                 return false
             }
+            
             guard let rhsTrigger = $1.trigger as? UNCalendarNotificationTrigger, let rhsTriggerDate = rhsTrigger.nextTriggerDate() else {
                 logger.info("Type cast or conditional unwrapping failed")
                 return false
             }
+            
             return lhsTriggerDate < rhsTriggerDate
         }
         
         pendingNotifications.enumerated().forEach { index, request in
             let content = request.content
+            
             guard let updatedContent = content.mutableCopy() as? UNMutableNotificationContent else {
                 logger.info("Type cast failed")
                 return
             }
+            
             updatedContent.badge = NSNumber(value: index + 1)
-            let updatedRequest = UNNotificationRequest(identifier: request.identifier, content: updatedContent, trigger: request.trigger)
+            
+            let updatedRequest = UNNotificationRequest(
+                identifier: request.identifier,
+                content: updatedContent,
+                trigger: request.trigger
+            )
             center.add(updatedRequest)
         }
     }
@@ -115,6 +140,7 @@ class NotificationService {
         content.sound = .default
         content.badge = await configureBadge(item.dueDate)
         content.userInfo = ["repeatFrequency": item.repeatFrequency.rawValue]
+        content.categoryIdentifier = "SuruCategory"
         let dateComponents = configureDateComponents(for: item.dueDate, with: .Never)
         let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
         let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
@@ -134,6 +160,7 @@ class NotificationService {
             content.body = item.content
             content.sound = .default
             content.badge = await configureBadge(badgeDate)
+            content.categoryIdentifier = "SuruCategory"
             let dateComponents = configureDateComponents(for: item.dueDate, with: item.repeatFrequency)
             let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
             let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)

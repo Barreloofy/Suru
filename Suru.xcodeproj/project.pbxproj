@@ -129,10 +129,10 @@
 		2923158E2CC85D2A0073A842 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
-				290FE9B32D6A6DC200F1B360 /* DetailVM.swift */,
 				292315942CC861220073A842 /* UserData.swift */,
 				29A4631C2D66706A00FC92D4 /* ListVM.swift */,
 				292BB44B2D68E5E9007B8860 /* ItemVM.swift */,
+				290FE9B32D6A6DC200F1B360 /* DetailVM.swift */,
 				29721F082D60E1F90047372E /* SettingsVM.swift */,
 			);
 			path = ViewModels;

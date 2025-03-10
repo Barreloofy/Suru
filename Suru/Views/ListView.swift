@@ -36,6 +36,7 @@ struct ListView: View {
             NotificationService.shared.cleanup()
             Task {
                 await NotificationService.shared.badgeUpdater()
+                viewModel.updateCompleted(&userData.SuruItems)
             }
         }
         .environment(userData)

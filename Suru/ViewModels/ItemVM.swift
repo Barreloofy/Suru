@@ -61,6 +61,7 @@ final class ItemViewModel {
                     
                     let dueDate = item.wrappedValue.dueDate
                     item.wrappedValue.dueDate = dueDate > triggerDate ? dueDate : triggerDate
+                    
                     try await Task.sleep(for: .seconds(0.25))
                     item.wrappedValue.completed = false
                     
@@ -75,6 +76,7 @@ final class ItemViewModel {
         guard !showDetails else { return }
         
         item.wrappedValue.content.lengthEnforcer()
+        
         guard item.wrappedValue.alert else { return }
         debounceNotificationUpdate(item.wrappedValue)
     }
