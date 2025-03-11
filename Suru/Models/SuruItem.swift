@@ -28,6 +28,10 @@ struct SuruItem: Identifiable, Comparable, Codable {
         self.alert = false
         self.repeatFrequency = Frequency.Never
     }
+    
+    var strID: String {
+        return id.uuidString
+    }
 }
 
 enum Frequency: String, CaseIterable, Identifiable, Codable {

@@ -11,20 +11,20 @@ import SwiftUI
 @MainActor
 @Observable
 final class DetailViewModel {
-    var text = ""
+    var item: SuruItem
     var alert = UserDefaults.standard.bool(forKey: "defaultAlertValue")
     
-    init(text: String) {
-        self.text = text
+    init(item: SuruItem) {
+        self.item = item
     }
     
     func set(for item: Binding<SuruItem>) {
-        item.wrappedValue.content = text
-        item.wrappedValue.alert = alert
+        item.wrappedValue = self.item
+        item.wrappedValue.alert = self.alert
         
         guard item.wrappedValue.alert else {
             let center = UNUserNotificationCenter.current()
-            center.removePendingNotificationRequests(withIdentifiers: [item.wrappedValue.id.uuidString])
+            center.removePendingNotificationRequests(withIdentifiers: [item.wrappedValue.strID])
             return
         }
         
@@ -34,10 +34,7 @@ final class DetailViewModel {
     }
     
     func initiateAlert(_ itemAlert: Bool) {
-        Task {
-            guard let result = try? await UNUserNotificationCenter.current().requestAuthorization() else { return }
-            guard result && itemAlert else { return }
-            alert = true
-        }
+        guard itemAlert && NotificationService.shared.notificationPermission else { return }
+        alert = true
     }
 }

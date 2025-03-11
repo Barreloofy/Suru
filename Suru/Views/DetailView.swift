@@ -14,7 +14,7 @@ struct DetailView: View {
     
     init(item: Binding<SuruItem>) {
         self._item = item
-        self._viewModel = State(initialValue: DetailViewModel(text: item.wrappedValue.content))
+        self._viewModel = State(initialValue: DetailViewModel(item: item.wrappedValue))
     }
     
     var body: some View {
@@ -47,19 +47,19 @@ struct DetailView: View {
     
     
     @ViewBuilder private var FormContent: some View {
-        TextField("Suru...", text: $viewModel.text, axis: .vertical)
-            .onChange(of: viewModel.text) {
-                viewModel.text.lengthEnforcer()
+        TextField("Suru...", text: $viewModel.item.content, axis: .vertical)
+            .onChange(of: viewModel.item.content) {
+                viewModel.item.content.lengthEnforcer()
             }
         
         Group {
             Toggle("Alert", isOn: $viewModel.alert)
             
-            DatePicker("Dueby:", selection: $item.dueDate)
+            DatePicker("Dueby:", selection: $viewModel.item.dueDate)
                 .tint(DesignSystem.Colors.primaryText)
             
             LabeledContent("Repeat:") {
-                Picker("Repeat:", selection: $item.repeatFrequency) {
+                Picker("Repeat:", selection: $viewModel.item.repeatFrequency) {
                     ForEach(Frequency.allCases) { frequency in
                         Text(frequency.rawValue)
                     }

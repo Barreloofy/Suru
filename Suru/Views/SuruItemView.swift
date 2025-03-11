@@ -34,7 +34,7 @@ struct SuruItemView: View {
             }
             .buttonStyle(.borderless)
             .onChange(of: item.completed) {
-                viewModel.completionHandler($item)
+                viewModel.handleCompletion(for: $item)
             }
             
             TextField("Suru...", text: $item.content)

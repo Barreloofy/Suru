@@ -25,29 +25,33 @@ final class ListViewModel {
             proxy.scrollTo(uuid, anchor: .center)
         }
     }
-    
-    private func getItemID(_ uuid: UUID) -> String {
-        var itemID = uuid.uuidString
-        
-        if itemID.hasSuffix("_repeating") {
-            itemID = String(itemID.dropLast(10))
-        }
-        
-        return itemID
-    }
-    
-    func updateCompleted(_ suruItems: inout [SuruItem]) {
-        guard let completedItems = UserDefaults.standard.stringArray(forKey: "completedItems") else { return }
-        
-        var completedItemsDict: [String: Int] = Dictionary(minimumCapacity: suruItems.count)
-        
-        suruItems.enumerated().forEach { index, item in
-            completedItemsDict[getItemID(item.id)] = index
-        }
-        
-        completedItems.forEach { completedID in
-            guard let index = completedItemsDict[completedID] else { return }
-            suruItems[index].completed = true
-        }
-    }
 }
+
+/*
+ 
+ private func getItemID(_ uuid: UUID) -> String {
+     var itemID = uuid.uuidString
+     
+     if itemID.hasSuffix("_repeating") {
+         itemID = String(itemID.dropLast(10))
+     }
+     
+     return itemID
+ }
+ 
+ func updateCompleted(_ suruItems: inout [SuruItem]) {
+     guard let completedItems = UserDefaults.standard.stringArray(forKey: "completedItems") else { return }
+     
+     var completedItemsDict: [String: Int] = Dictionary(minimumCapacity: suruItems.count)
+     
+     suruItems.enumerated().forEach { index, item in
+         completedItemsDict[getItemID(item.id)] = index
+     }
+     
+     completedItems.forEach { completedID in
+         guard let index = completedItemsDict[completedID] else { return }
+         suruItems[index].completed = true
+     }
+ }
+ 
+ */

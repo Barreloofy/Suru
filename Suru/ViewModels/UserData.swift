@@ -62,7 +62,7 @@ final class UserData {
     
     func remove(at indexSet: IndexSet) {
         var notificationsToRemove = indexSet.compactMap {
-            SuruItems.indices.contains($0) ? SuruItems[$0].id.uuidString : nil
+            SuruItems.indices.contains($0) ? SuruItems[$0].strID : nil
         }
         
         notificationsToRemove.forEach {
@@ -77,12 +77,12 @@ final class UserData {
     
     func remove(item: SuruItem) {
         guard let index = SuruItems.firstIndex(where: { $0 == item }) else { return }
+        SuruItems.remove(at: index)
         
-        let notificationToRemove = [item.id.uuidString, item.id.uuidString + "_repeating"]
+        let notificationToRemove = [item.strID, item.strID + "_repeating"]
         UNUserNotificationCenter.current().removePendingNotificationRequests(
             withIdentifiers: notificationToRemove
         )
-        SuruItems.remove(at: index)
         
         StorageService.store(SuruItems)
     }

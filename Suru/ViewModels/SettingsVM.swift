@@ -10,6 +10,16 @@ import OSLog
 import UserNotifications
 
 fileprivate let logger = Logger(subsystem: "com.Settings.suru", category: "Error")
+enum SettingError: Error, LocalizedError {
+    case permissionDenied
+    
+    var errorDescription: String? {
+        switch self {
+            case .permissionDenied:
+                return "Failed to start accessing security-scoped resource"
+        }
+    }
+}
 
 @MainActor
 @Observable
@@ -37,9 +47,11 @@ final class SettingsViewModel {
     
     func importFile(_ suruItems: inout [SuruItem], _ result: Result<URL, any Error>) {
         switch result {
-            case .success(let success):
+            case .success(let url):
                 do {
-                    let data = try Data(contentsOf: success)
+                    guard url.startAccessingSecurityScopedResource() else { throw SettingError.permissionDenied }
+                    
+                    let data = try Data(contentsOf: url)
                     let decodedSuruItems = try JSONDecoder().decode([SuruItem].self, from: data)
                     
                     suruItems = decodedSuruItems
@@ -47,11 +59,12 @@ final class SettingsViewModel {
                     
                     UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
                 } catch {
-                    logger.error("\(error)")
+                    logger.error("\(error.localizedDescription)")
                     importError.toggle()
+                    url.stopAccessingSecurityScopedResource()
                 }
-            case .failure(let failure):
-                logger.error("\(failure)")
+            case .failure(let error):
+                logger.error("\(error.localizedDescription)")
                 importError.toggle()
         }
     }

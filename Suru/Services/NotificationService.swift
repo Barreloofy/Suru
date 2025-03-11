@@ -5,11 +5,23 @@
 //  Created by Barreloofy on 10/26/24 at 4:03 PM.
 //
 
-import Foundation
 @preconcurrency import UserNotifications
 import OSLog
 
 fileprivate let logger = Logger(subsystem: "com.NotificationService.suru", category: "Error")
+enum NotificationError: Error, LocalizedError {
+    case castFail
+    case unwrappingFail
+    
+    var errorDescription: String? {
+        switch self {
+            case .castFail:
+                return "Type cast failed"
+            case .unwrappingFail:
+                return "conditional unwrapping failed"
+        }
+    }
+}
 
 @MainActor
 class NotificationService {
@@ -26,66 +38,47 @@ class NotificationService {
         }
     }
     
-    func setupNotificationCategories() {
-        let completeAction = UNNotificationAction(
-            identifier: "CompleteAction",
-            title: "Complete",
-            options: [],
-            icon: UNNotificationActionIcon(systemImageName: "circle.circle")
-        )
-        
-        let suruCategory = UNNotificationCategory(identifier: "SuruCategory", actions: [completeAction], intentIdentifiers: [])
-        
-        center.setNotificationCategories([suruCategory])
-    }
-    
-    func cleanup() {
-        Task {
-            do {
-                try await center.setBadgeCount(0)
+    func refreshNotificationState() async {
+        do {
+            try await center.setBadgeCount(0)
+            
+            let deliveredNotifications = await center.deliveredNotifications()
+            
+            for notification in deliveredNotifications {
+                var notificationID = notification.request.identifier
                 
-                let deliveredNotifications = await center.deliveredNotifications()
-                
-                deliveredNotifications.forEach { notification in
-                    var notificationID = notification.request.identifier
-                    if notificationID.hasSuffix("_repeating") {
-                        Task {
-                            notificationID = String(notificationID.dropLast(10))
-                            NotificationService.shared.tappedNotification = notificationID
-                            await NotificationService.shared.createRepeatingNotification(notification, notificationID)
-                        }
-                    }
+                guard notificationID.hasSuffix("_repeating") else {
+                    center.removeDeliveredNotifications(withIdentifiers: [notificationID])
+                    continue
                 }
-            } catch {
-                logger.error("\(error)")
+                
+                notificationID = String(notificationID.dropLast(10))
+                center.removeDeliveredNotifications(withIdentifiers: [notificationID])
+                async let _ = createRepeatingNotification(notification: notification, id: notificationID)
             }
+        }
+        catch {
+            logger.error("\(error.localizedDescription)")
         }
     }
     
-    func badgeUpdater() async {
-        let pendingNotifications = await center.pendingNotificationRequests().sorted {
-            
-            guard let lhsTrigger = $0.trigger as? UNCalendarNotificationTrigger, let lhsTriggerDate = lhsTrigger.nextTriggerDate() else {
-                logger.info("Type cast or conditional unwrapping failed")
-                return false
+    func updateBadge() async {
+        let pendingNotifications = await center.pendingNotificationRequests()
+            .sorted {
+                do {
+                    let lhsTriggerDate = try castToCalendarTrigger(for: $0.trigger)
+                    
+                    let rhsTriggerDate = try castToCalendarTrigger(for: $1.trigger)
+                    
+                    return lhsTriggerDate < rhsTriggerDate
+                } catch {
+                    logger.error("\(error.localizedDescription)")
+                    return false
+                }
             }
-            
-            guard let rhsTrigger = $1.trigger as? UNCalendarNotificationTrigger, let rhsTriggerDate = rhsTrigger.nextTriggerDate() else {
-                logger.info("Type cast or conditional unwrapping failed")
-                return false
-            }
-            
-            return lhsTriggerDate < rhsTriggerDate
-        }
         
-        pendingNotifications.enumerated().forEach { index, request in
-            let content = request.content
-            
-            guard let updatedContent = content.mutableCopy() as? UNMutableNotificationContent else {
-                logger.info("Type cast failed")
-                return
-            }
-            
+        for (index, request) in pendingNotifications.enumerated() {
+            let updatedContent = request.content.mutableCopy() as! UNMutableNotificationContent
             updatedContent.badge = NSNumber(value: index + 1)
             
             let updatedRequest = UNNotificationRequest(
@@ -93,12 +86,17 @@ class NotificationService {
                 content: updatedContent,
                 trigger: request.trigger
             )
-            center.add(updatedRequest)
+            do {
+                try await center.add(updatedRequest)
+            } catch {
+                logger.error("\(error.localizedDescription)")
+            }
         }
     }
     
-    func configureDateComponents(for date: Date, with repeatValue: Frequency) -> DateComponents {
+    private func configureDateComponents(for date: Date, with repeatValue: Frequency) -> DateComponents {
         let calendar = Calendar.current
+        
         switch repeatValue {
             case .Never:
                 return calendar.dateComponents([.year, .month, .day, .hour, .minute], from: date)
@@ -115,86 +113,95 @@ class NotificationService {
         }
     }
     
-    func configureBadge(_ dueDate: Date) async -> NSNumber {
+    private func configureBadge(_ dueDate: Date) async -> NSNumber {
         let pendingNotifications = await center.pendingNotificationRequests()
         var count = 1
-        pendingNotifications.forEach { notification in
-            guard let trigger = notification.trigger as? UNCalendarNotificationTrigger else {
-                logger.info("Type cast failed")
+        
+        pendingNotifications.forEach {
+            do {
+                let triggerDate = try castToCalendarTrigger(for: $0.trigger)
+                if dueDate > triggerDate || dueDate == triggerDate { count += 1}
+            } catch {
+                logger.error("\(error.localizedDescription)")
                 return
             }
-            guard let triggerDate = trigger.nextTriggerDate() else {
-                logger.info("Type cast failed")
-                return
-            }
-            if dueDate > triggerDate || dueDate == triggerDate { count += 1 }
         }
+        
         return NSNumber(value: count)
     }
     
     func createNotification(for item: SuruItem) async {
         guard item.alert, item.dueDate > Date() else { return }
-        let id = item.repeatFrequency != .Never ? item.id.uuidString + "_repeating" : item.id.uuidString
+        
+        let id = item.repeatFrequency != .Never ? item.strID + "_repeating" : item.strID
         let content = UNMutableNotificationContent()
+        
         content.body = item.content
         content.sound = .default
         content.badge = await configureBadge(item.dueDate)
         content.userInfo = ["repeatFrequency": item.repeatFrequency.rawValue]
-        content.categoryIdentifier = "SuruCategory"
+        
         let dateComponents = configureDateComponents(for: item.dueDate, with: .Never)
         let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
+        
         let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
         do {
             try await center.add(request)
         } catch {
-            logger.error("\(error)")
+            logger.error("\(error.localizedDescription)")
         }
     }
     
     func createRepeatingNotification(for item: SuruItem) async {
         guard item.alert, item.repeatFrequency != .Never else { return }
         do {
-            let id = item.id.uuidString
+            let badgeDate = try createBadgeDate(with: item.repeatFrequency, from: item.dueDate)
             let content = UNMutableNotificationContent()
-            guard let badgeDate = Calendar.current.date(byAdding: try item.repeatFrequency.toComponent(), value: 1, to: item.dueDate) else { return }
+            
             content.body = item.content
             content.sound = .default
             content.badge = await configureBadge(badgeDate)
-            content.categoryIdentifier = "SuruCategory"
+            
             let dateComponents = configureDateComponents(for: item.dueDate, with: item.repeatFrequency)
             let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
-            let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
+           
+            let request = UNNotificationRequest(identifier: item.strID, content: content, trigger: trigger)
             try await center.add(request)
         } catch {
             logger.error("\(error)")
         }
     }
     
-    func createRepeatingNotification(_ notification: UNNotification, _ id: String) async {
+    func createRepeatingNotification(notification: UNNotification, id: String) async {
         do {
-            guard let content = notification.request.content.mutableCopy() as? UNMutableNotificationContent else { return }
-            guard let frequencyString = content.userInfo["repeatFrequency"] as? String, let frequency = Frequency(rawValue: frequencyString) else { return }
-            guard let badgeDate = Calendar.current.date(byAdding: try frequency.toComponent(), value: 1, to: notification.date) else { return }
+            let content = notification.request.content.mutableCopy() as! UNMutableNotificationContent
+            
+            guard let frequencyStr = content.userInfo["repeatFrequency"] as? String else { throw NotificationError.castFail }
+            guard let frequency = Frequency(rawValue: frequencyStr) else { throw NotificationError.unwrappingFail }
+            
+            let badgeDate = try createBadgeDate(with: frequency, from: notification.date)
             content.badge = await configureBadge(badgeDate)
+            
             let dateComponents = configureDateComponents(for: notification.date, with: frequency)
             let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
+            
             let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
             try await center.add(request)
         } catch {
-            logger.error("\(error)")
+            logger.error("\(error.localizedDescription)")
         }
     }
     
-    func completionCheck(for item: SuruItem) {
+    func handleCompletionForFrequencyNever(for item: SuruItem) {
         guard item.repeatFrequency == .Never else { return }
-        switch item.alert {
+        
+        switch item.completed {
             case true:
+                center.removePendingNotificationRequests(withIdentifiers: [item.strID])
+            case false:
                 Task {
                     await createNotification(for: item)
                 }
-            case false:
-                let id = item.id.uuidString
-                center.removePendingNotificationRequests(withIdentifiers: [id])
         }
     }
 }
@@ -206,4 +213,21 @@ extension NotificationService {
             Text("Notifications are turned off")
         }
     }
+}
+
+private func castToCalendarTrigger(for trigger: UNNotificationTrigger?) throws -> Date {
+    guard let CalendarTrigger = trigger as? UNCalendarNotificationTrigger else { throw NotificationError.castFail }
+    guard let triggerDate = CalendarTrigger.nextTriggerDate() else { throw NotificationError.unwrappingFail }
+    return triggerDate
+}
+
+private func createBadgeDate(with frequency: Frequency, from date: Date) throws -> Date {
+    guard let badgeDate = Calendar.current.date(
+        byAdding: try frequency.toComponent(),
+        value: 1,
+        to: date
+    )
+    else { throw NotificationError.unwrappingFail }
+    
+    return badgeDate
 }

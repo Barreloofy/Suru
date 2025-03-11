@@ -33,10 +33,9 @@ struct ListView: View {
         .onChange(of: scenePhase) {
             guard scenePhase == .active else { return }
             NotificationService.shared.notificationAuthorization()
-            NotificationService.shared.cleanup()
             Task {
-                await NotificationService.shared.badgeUpdater()
-                viewModel.updateCompleted(&userData.SuruItems)
+                await NotificationService.shared.refreshNotificationState()
+                await NotificationService.shared.updateBadge()
             }
         }
         .environment(userData)

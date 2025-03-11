@@ -7,7 +7,8 @@
 
 import Foundation
 import Combine
-@preconcurrency import SwiftUI
+import SwiftUI
+@preconcurrency import UserNotifications
 import OSLog
 
 fileprivate let logger = Logger(subsystem: "com.Item.Suru", category: "Error")
@@ -28,48 +29,53 @@ final class ItemViewModel {
     var showDetails = false
     private var timer: AnyCancellable?
     
-    func completionHandler(_ item: Binding<SuruItem>) {
-        if item.wrappedValue.repeatFrequency == .Never {
-            NotificationService.shared.completionCheck(for: item.wrappedValue)
+    func handleCompletion(for item: Binding<SuruItem>) {
+        guard item.wrappedValue.repeatFrequency != .Never else {
+            NotificationService.shared.handleCompletionForFrequencyNever(for: item.wrappedValue)
+            return
         }
-        else {
-            Task {
-                do {
-                    guard let repeatingNotification = await UNUserNotificationCenter.current()
-                        .pendingNotificationRequests()
-                        .first(where: {
-                            $0.identifier == item.wrappedValue.id.uuidString
-                            ||
-                            $0.identifier == item.wrappedValue.id.uuidString + "_repeating"
-                        })
-                    else {
-                        await NotificationService.shared.createRepeatingNotification(for: item.wrappedValue)
-                        try await Task.sleep(for: .seconds(0.25))
-                        item.wrappedValue.completed = false
-                        return
-                    }
-                    
-                    guard let trigger = repeatingNotification.trigger as? UNCalendarNotificationTrigger
-                    else {
-                        throw ItemError.nilValue
-                    }
-                    
-                    guard let triggerDate = trigger.nextTriggerDate()
-                    else {
-                        throw ItemError.nilValue
-                    }
-                    
-                    let dueDate = item.wrappedValue.dueDate
-                    item.wrappedValue.dueDate = dueDate > triggerDate ? dueDate : triggerDate
-                    
-                    try await Task.sleep(for: .seconds(0.25))
-                    item.wrappedValue.completed = false
-                    
-                } catch {
-                    logger.error("\(error)")
-                }
+        
+        Task {
+            async let _ = handleCompletion(item)
+        }
+    }
+    
+    private func handleCompletion(_ item: Binding<SuruItem>) async {
+        do {
+            let notification = await UNUserNotificationCenter.current()
+                .pendingNotificationRequests()
+                .first(where: {
+                    $0.identifier == item.wrappedValue.strID
+                    ||
+                    $0.identifier == item.wrappedValue.strID + "_repeating"
+                })
+            
+            guard let repeatingNotification = notification else {
+                await NotificationService.shared.createRepeatingNotification(for: item.wrappedValue)
+                try await toggleCompleted(item.completed)
+                return
             }
+            
+            guard let trigger = repeatingNotification.trigger as? UNCalendarNotificationTrigger else {
+                throw ItemError.nilValue
+            }
+            guard let triggerDate = trigger.nextTriggerDate() else {
+                throw ItemError.nilValue
+            }
+            
+            let dueDate = item.wrappedValue.dueDate
+            item.wrappedValue.dueDate = dueDate > triggerDate ? dueDate : triggerDate
+            
+            try await toggleCompleted(item.completed)
+            
+        } catch {
+            logger.error("\(error.localizedDescription)")
         }
+    }
+    
+    private func toggleCompleted(_ value: Binding<Bool>) async throws {
+        try await Task.sleep(for: .milliseconds(250))
+        value.wrappedValue.toggle()
     }
     
     func updateItem(_ item: Binding<SuruItem>) {
