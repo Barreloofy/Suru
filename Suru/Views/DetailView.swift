@@ -9,6 +9,7 @@ import SwiftUI
 
 struct DetailView: View {
     @Environment(\.dismiss) private var dismiss
+    @FocusState private var textFieldIsFocused: Bool
     @State private var viewModel: DetailViewModel
     @Binding var item: SuruItem
     
@@ -24,20 +25,10 @@ struct DetailView: View {
             }
             .foregroundStyle(DesignSystem.Colors.primaryText)
             .tint(DesignSystem.Colors.tint)
+            .onTapGesture { textFieldIsFocused = false }
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        dismiss()
-                        viewModel.set(for: $item)
-                    } label: {
-                        Text("Set")
-                    }
-                    .font(.title3)
-                }
-                ToolbarItem(placement: .principal) {
-                    Text("Details")
-                        .font(.title)
-                }
+                ToolbarItem(placement: .topBarTrailing) { setButton }
+                ToolbarItem(placement: .principal) { titleContent("Details") }
             }
         }
         .onAppear {
@@ -48,6 +39,7 @@ struct DetailView: View {
     
     @ViewBuilder private var FormContent: some View {
         TextField("Suru...", text: $viewModel.item.content, axis: .vertical)
+            .focused($textFieldIsFocused)
             .onChange(of: viewModel.item.content) {
                 viewModel.item.content.lengthEnforcer()
             }
@@ -72,6 +64,17 @@ struct DetailView: View {
         
         NotificationService.shared.alertText()
             .fontWeight(.regular)
+    }
+    
+    
+    private var setButton: some View {
+        Button {
+            dismiss()
+            viewModel.set(for: $item)
+        } label: {
+            Text("Set")
+        }
+        .font(.title3)
     }
 }
 

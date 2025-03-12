@@ -5,8 +5,8 @@
 //  Created by Barreloofy on 2/22/25 at 9:40 PM.
 //
 
-import Foundation
 import SwiftUI
+@preconcurrency import UserNotifications
 
 @MainActor
 @Observable
@@ -29,7 +29,16 @@ final class DetailViewModel {
         }
         
         Task {
-            await NotificationService.shared.createNotification(for: item.wrappedValue)
+            let center = UNUserNotificationCenter.current()
+            
+            let itemIsNotification = await center.pendingNotificationRequests()
+                .contains(where: {
+                    $0.identifier == item.wrappedValue.strID
+                })
+            
+            if !itemIsNotification {
+                await NotificationService.shared.createNotification(for: item.wrappedValue)
+            }
         }
     }
     

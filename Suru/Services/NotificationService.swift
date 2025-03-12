@@ -45,16 +45,18 @@ class NotificationService {
             let deliveredNotifications = await center.deliveredNotifications()
             
             for notification in deliveredNotifications {
-                var notificationID = notification.request.identifier
+                let notificationID = notification.request.identifier
                 
                 guard notificationID.hasSuffix("_repeating") else {
                     center.removeDeliveredNotifications(withIdentifiers: [notificationID])
                     continue
                 }
                 
-                notificationID = String(notificationID.dropLast(10))
-                center.removeDeliveredNotifications(withIdentifiers: [notificationID])
-                async let _ = createRepeatingNotification(notification: notification, id: notificationID)
+                let trimmedNotificationID = String(notificationID.dropLast(10))
+                center.removeDeliveredNotifications(withIdentifiers: [trimmedNotificationID])
+                Task {
+                    await createRepeatingNotification(notification: notification, id: trimmedNotificationID)
+                }
             }
         }
         catch {

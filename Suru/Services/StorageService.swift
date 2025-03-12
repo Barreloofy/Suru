@@ -5,7 +5,6 @@
 //  Created by Barreloofy on 10/23/24 at 4:41 PM.
 //
 
-import Foundation
 import OSLog
 
 fileprivate let logger = Logger(subsystem: "com.StorageService.Suru", category: "Error")

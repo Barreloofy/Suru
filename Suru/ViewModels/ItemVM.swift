@@ -5,7 +5,6 @@
 //  Created by Barreloofy on 2/21/25 at 5:49 PM.
 //
 
-import Foundation
 import Combine
 import SwiftUI
 @preconcurrency import UserNotifications
@@ -15,7 +14,7 @@ fileprivate let logger = Logger(subsystem: "com.Item.Suru", category: "Error")
 fileprivate enum ItemError: Error, LocalizedError {
     case nilValue
     
-    var localizedDescription: String {
+    var errorDescription: String {
         switch self {
             case .nilValue:
                 return "Conditional statement resolves to nil"
@@ -36,14 +35,14 @@ final class ItemViewModel {
         }
         
         Task {
-            async let _ = handleCompletion(item)
+            await handleCompletionForRepeating(item)
         }
     }
     
-    private func handleCompletion(_ item: Binding<SuruItem>) async {
+    private func handleCompletionForRepeating(_ item: Binding<SuruItem>) async {
         do {
-            let notification = await UNUserNotificationCenter.current()
-                .pendingNotificationRequests()
+            let center = UNUserNotificationCenter.current()
+            let notification = await center.pendingNotificationRequests()
                 .first(where: {
                     $0.identifier == item.wrappedValue.strID
                     ||
@@ -74,8 +73,8 @@ final class ItemViewModel {
     }
     
     private func toggleCompleted(_ value: Binding<Bool>) async throws {
-        try await Task.sleep(for: .milliseconds(250))
-        value.wrappedValue.toggle()
+        try await Task.sleep(for: .seconds(0.5))
+        value.wrappedValue = false
     }
     
     func updateItem(_ item: Binding<SuruItem>) {
@@ -89,7 +88,7 @@ final class ItemViewModel {
     
     private func debounceNotificationUpdate(_ item: SuruItem) {
         timer?.cancel()
-        timer = Timer.publish(every: 0.5, on: .main, in: .common)
+        timer = Timer.publish(every: 1.0, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in
                 guard let self = self else {

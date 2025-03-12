@@ -19,21 +19,19 @@ struct ListView: View {
                 DesignSystem.Colors.background.ignoresSafeArea()
                 MainContent
                     .toolbar {
-                        ToolbarItem(placement: .topBarLeading) { TitleContent }
+                        ToolbarItem(placement: .topBarLeading) { titleContent("Suru") }
                         ToolbarItemGroup(placement: .bottomBar) { ToolbarContent }
                     }
                     .toolbarStyle()
             }
             .bold()
             .foregroundStyle(DesignSystem.Colors.primary)
-            .onLongPressGesture {
-                focusedItem = nil
-            }
+            .onLongPressGesture { focusedItem = nil }
         }
         .onChange(of: scenePhase) {
             guard scenePhase == .active else { return }
-            NotificationService.shared.notificationAuthorization()
             Task {
+                NotificationService.shared.notificationAuthorization()
                 await NotificationService.shared.refreshNotificationState()
                 await NotificationService.shared.updateBadge()
             }
@@ -105,12 +103,6 @@ struct ListView: View {
         .sheet(isPresented: $viewModel.showSettings) {
             SettingsView()
         }
-    }
-    
-    
-    private var TitleContent: some View {
-        Text("Suru")
-            .font(.title)
     }
 }
 

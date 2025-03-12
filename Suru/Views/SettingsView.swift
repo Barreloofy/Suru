@@ -43,18 +43,8 @@ struct SettingsView: View {
                 }
             )
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Text("Done")
-                    }
-                }
-                
-                ToolbarItem(placement: .principal) {
-                    Text("Settings")
-                        .font(.title)
-                }
+                ToolbarItem(placement: .topBarTrailing) { doneButton }
+                ToolbarItem(placement: .principal) { titleContent("Settings") }
             }
         }
     }
@@ -100,6 +90,15 @@ struct SettingsView: View {
             }
         }
         .buttonStyle(.plain)
+    }
+    
+    
+    private var doneButton: some View {
+        Button {
+            dismiss()
+        } label: {
+            Text("Done")
+        }
     }
 }
 

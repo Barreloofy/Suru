@@ -5,7 +5,6 @@
 //  Created by Barreloofy on 10/23/24 at 12:39 AM.
 //
 
-import Foundation
 import UserNotifications
 import Combine
 import OSLog
@@ -22,13 +21,9 @@ final class UserData {
     
     private func debounce() {
         timer?.cancel()
-        timer = Timer.publish(every: 0.5, on: .main, in: .common)
+        timer = Timer.publish(every: 1.0, on: .main, in: .common)
             .autoconnect()
-            .sink { [weak self] _ in
-                guard let self = self else {
-                    Logger().error("Self in closure #1 of debounce() function resolved to nil")
-                    return
-                }
+            .sink { [unowned self] _ in
                 timer?.cancel()
                 timer = nil
                 sortSuruItems()

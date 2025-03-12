@@ -55,3 +55,9 @@ extension View {
         return self.modifier(ToolbarStyle())
     }
 }
+
+
+func titleContent(_ title: String) -> some View {
+    Text(title)
+        .font(.title)
+}
